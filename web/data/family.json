@@ -1,0 +1,39 @@
+{
+  "people": [
+    {
+      "id": "michael-t-fink",
+      "generation": -1,
+      "name": "Mike Fink",
+      "birthYear": 1960,
+      "photo": "mikefink.jpg",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["maureen-e-fink"],
+      "childIds": ["jeffrey-r-fink"]
+    },
+    {
+      "id": "maureen-e-fink",
+      "generation": -1,
+      "name": "Maureen Fink",
+      "birthYear": 1958,
+      "photo": "maureenfink.jpg",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["michael-t-fink"],
+      "childIds": ["jeffrey-r-fink"]
+    },
+    {
+      "id": "jeffrey-r-fink",
+      "generation": 0,
+      "name": "Jeff Fink",
+      "birthYear": 1994,
+      "photo": "jefffink.jpg",
+      "currentLocation": "Queens, NY",
+      "notes": "",
+      "parentIds": ["michael-t-fink", "maureen-e-fink"],
+      "spouseIds": []
+    }
+  ]
+}
