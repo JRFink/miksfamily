@@ -1,47 +1,41 @@
 (async function () {
   const svg = d3.select("#treeSvg");
-  const g = svg.append("g");           // zoom root
-  const linksLayer = g.append("g");    // edges
-  const nodesLayer = g.append("g");    // nodes
-  const marriagesLayer = g.append("g");// marriage lines (between partners)
-  const parentConnectorLayer = g.append("g").attr("class", "parent-connectors"); 
+  const g = svg.append("g"); // zoom root
+  const linksLayer = g.append("g").attr("class", "links");
+  const nodesLayer = g.append("g").attr("class", "nodes");
 
-  const width = () => svg.node().clientWidth;
-  const height = () => svg.node().clientHeight;
+  const width = () => svg.node()?.clientWidth ?? window.innerWidth;
+  const height = () => svg.node()?.clientHeight ?? window.innerHeight;
 
-  // Zoom behavior (wheel/pinch/drag)
+  // Zoom behavior
   const zoom = d3.zoom()
     .scaleExtent([0.2, 3])
-    .on("zoom", (event) => {
-      g.attr("transform", event.transform);
-    });
-  svg.call(zoom).on("dblclick.zoom", null); // disable dblclick zoom to keep double-click for expand/collapse
+    .on("zoom", (event) => g.attr("transform", event.transform));
+  svg.call(zoom).on("dblclick.zoom", null);
 
-  // Data
+  // ---- Load data ----
   const data = await d3.json("./data/family.json");
-  // Expect: { people: Person[] }
-  // Person: { id, name, birthYear?, deathYear?, photo?, notes?, parentIds?:[], spouseIds?:[], order?:number }
+  if (!data?.people?.length) {
+    console.error("family.json has no people");
+    return;
+  }
 
-  // Build lookup maps
+  // Lookup by id
   const byId = new Map();
   data.people.forEach(p => byId.set(p.id, p));
 
-  // Build children map from parent relationships
-  const childrenOf = new Map(); // id -> Set(childrenIds)
-  data.people.forEach(p => { childrenOf.set(p.id, new Set()); });
-
+  // childrenOf from parentIds
+  const childrenOf = new Map();
+  data.people.forEach(p => childrenOf.set(p.id, new Set()));
   data.people.forEach(child => {
     (child.parentIds || []).forEach(pid => {
       if (childrenOf.has(pid)) childrenOf.get(pid).add(child.id);
     });
   });
 
-  // Roots = people who have no parentIds (or empty)
-  const roots = data.people.filter(p => !p.parentIds || p.parentIds.length === 0);
-
-  // Optionally order siblings (using 'order' field if present)
-  function sortChildren(ids){
-    return [...ids].sort((a,b) => {
+  // Optional sibling ordering
+  function sortChildren(ids) {
+    return [...(ids || [])].sort((a, b) => {
       const pa = byId.get(a), pb = byId.get(b);
       const oa = pa?.order ?? 0, ob = pb?.order ?? 0;
       if (oa !== ob) return oa - ob;
@@ -49,444 +43,372 @@
     });
   }
 
-  // Construct hierarchical trees per root
-  function makeTree(rootId){
-    const rootPerson = byId.get(rootId);
-    const toHierarchy = (pid) => {
-      const person = byId.get(pid);
-      const kids = sortChildren(childrenOf.get(pid));
-      return {
-        id: person.id,
-        person,
-        children: kids.map(toHierarchy)
-      };
-    };
-    return toHierarchy(rootPerson.id);
+  // ---- Unions ----
+  function pairKey(a, b) {
+    return a < b ? `${a}__${b}` : `${b}__${a}`;
   }
 
-  const forests = roots.map(r => d3.hierarchy(makeTree(r.id), d => d.children));
+  function sharedChildren(aId, bId) {
+    return data.people
+      .filter(ch => (ch.parentIds || []).includes(aId) && (ch.parentIds || []).includes(bId))
+      .map(ch => ch.id);
+  }
 
-  // Collapsible: store _children
-  forests.forEach(root => {
-    root.each(d => { if (d.children && d.children.length > 0) { d._children = d.children; } });
-    // Start collapsed except top 2 levels
-    root.children = root._children;
-    if (root.children) {
-      root.children.forEach(c => {
-        c.children = c._children;
-        if (c.children) c.children.forEach(gc => { gc.children = null; });
-      });
-    }
+  const unionsByKey = new Map();
+  data.people.forEach(p => {
+    (p.spouseIds || []).forEach(sp => {
+      if (!byId.has(sp)) return;
+      const key = pairKey(p.id, sp);
+      if (!unionsByKey.has(key)) {
+        unionsByKey.set(key, {
+          id: `union:${key}`,
+          type: "union",
+          partnerIds: key.split("__"),
+          childrenIds: sharedChildren(p.id, sp)
+        });
+      }
+    });
   });
 
+  // ---- Generation map (compute EARLY because union selection may use it) ----
   const MY_ID = "jeffrey-r-fink";
+
   function computeGenerations() {
-  const gen = new Map();
-  gen.set(MY_ID, 0);
+    const gen = new Map();
+    if (!byId.has(MY_ID)) return gen;
 
-  // BFS for ancestors (negative direction)
-  let queue = [MY_ID];
-  while (queue.length > 0) {
-    const id = queue.shift();
-    const g = gen.get(id);
-    const person = byId.get(id);
+    gen.set(MY_ID, 0);
 
-    (person.parentIds || []).forEach(pid => {
-      if (!gen.has(pid)) {
-        gen.set(pid, g - 1);
-        queue.push(pid);
-      }
-    });
+    // ancestors
+    let q = [MY_ID];
+    while (q.length) {
+      const id = q.shift();
+      const g0 = gen.get(id);
+      const person = byId.get(id);
+      (person?.parentIds || []).forEach(pid => {
+        if (!gen.has(pid)) {
+          gen.set(pid, g0 - 1);
+          q.push(pid);
+        }
+      });
+    }
+
+    // descendants
+    q = [MY_ID];
+    while (q.length) {
+      const id = q.shift();
+      const g0 = gen.get(id);
+      const kids = [...(childrenOf.get(id) || [])];
+      kids.forEach(cid => {
+        if (!gen.has(cid)) {
+          gen.set(cid, g0 + 1);
+          q.push(cid);
+        }
+      });
+    }
+
+    return gen;
   }
 
-  // BFS for descendants (positive direction)
-  queue = [MY_ID];
-  while (queue.length > 0) {
-    const id = queue.shift();
-    const g = gen.get(id);
+  const generations = computeGenerations();
 
-    const kids = [...childrenOf.get(id)];
-    kids.forEach(cid => {
-      if (!gen.has(cid)) {
-        gen.set(cid, g + 1);
-        queue.push(cid);
+  // ---- Convert to hierarchy ----
+  // Key idea: if a person has a spouse AND they share children,
+  // we represent those children under a UNION node so both partners are shown.
+  function makeHierarchyForPerson(pid) {
+    const person = byId.get(pid);
+    if (!person) return null;
+
+    const spouseId = (person.spouseIds || [])[0];
+    if (spouseId && byId.has(spouseId)) {
+      const key = pairKey(pid, spouseId);
+      const union = unionsByKey.get(key);
+      if (union && union.childrenIds && union.childrenIds.length > 0) {
+        return {
+          id: union.id,
+          type: "union",
+          partnerIds: union.partnerIds,
+          children: union.childrenIds.map(makeHierarchyForPerson).filter(Boolean)
+        };
       }
-    });
+    }
+
+    const kids = sortChildren(childrenOf.get(pid));
+    return {
+      id: pid,
+      type: "person",
+      person,
+      children: kids.map(makeHierarchyForPerson).filter(Boolean)
+    };
   }
 
-  return gen;
-}
+  // Choose forest roots:
+  // use unions where neither partner has parents (true top couples),
+  // plus any lone people who have no parents and no spouse.
+  const unionRoots = [...unionsByKey.values()].filter(u => {
+    const [a, b] = u.partnerIds;
+    const pa = byId.get(a), pb = byId.get(b);
+    const aRoot = !pa?.parentIds || pa.parentIds.length === 0;
+    const bRoot = !pb?.parentIds || pb.parentIds.length === 0;
+    return aRoot && bRoot;
+  });
 
-const generations = computeGenerations();
+  const loneRoots = data.people.filter(p => {
+    const isRoot = !p.parentIds || p.parentIds.length === 0;
+    const hasSpouse = (p.spouseIds || []).length > 0;
+    return isRoot && !hasSpouse;
+  });
 
-  // Layout config
+  function makeHierarchyForUnion(union) {
+    return {
+      id: union.id,
+      type: "union",
+      partnerIds: union.partnerIds,
+      children: (union.childrenIds || []).map(makeHierarchyForPerson).filter(Boolean)
+    };
+  }
+
+  const forests = [
+    ...unionRoots.map(u => d3.hierarchy(makeHierarchyForUnion(u), d => d.children)),
+    ...loneRoots.map(r => d3.hierarchy(makeHierarchyForPerson(r.id), d => d.children))
+  ];
+
+  // ---- Layout config ----
   const nodeWidth = 180;
-  const nodeHeight = 64;
-  const nodeSepX = 32;
-  const nodeSepY = 90;
+  const nodeHeight = 74;
+  const nodeSepX = 40;
+  const nodeSepY = 110;
 
-  // Render everything
+  const partnerGap = 28;
+
+  function anchorPoint(node, which) {
+    // node.x/node.y are the CENTER of the node-group
+    // For people and unions we treat "top" and "bottom" as +/- nodeHeight/2
+    const x = node.x;
+
+    if (which === "top") return { x, y: node.y - nodeHeight / 2 };
+    if (which === "bottom") return { x, y: node.y + nodeHeight / 2 };
+
+    return { x, y: node.y };
+  }
+
+  function diagonal(link) {
+    const s = anchorPoint(link.source, "bottom");
+    const t = anchorPoint(link.target, "top");
+
+    const mx = (s.x + t.x) / 2;
+    return `M ${s.x},${s.y} C ${mx},${s.y} ${mx},${t.y} ${t.x},${t.y}`;
+  }
+
+  function getCssVar(n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  }
+
+  // ---- Render ----
   function update() {
-    // Compute layout for each root, and place trees vertically one after another
     const renderedTrees = [];
-    let yOffset = 40;
+    let yOffset = 60;
 
     forests.forEach(root => {
-      const layout = d3.tree()
-        .nodeSize([nodeWidth + nodeSepX, nodeHeight + nodeSepY]);
-
+      const layout = d3.tree().nodeSize([nodeWidth + nodeSepX, nodeHeight + nodeSepY]);
       layout(root);
 
-      // shift to avoid overlap with previous tree
-      const minX = d3.min(root.descendants(), d => d.x);
-      const maxX = d3.max(root.descendants(), d => d.x);
-      const spanX = maxX - minX;
+      const minX = d3.min(root.descendants(), d => d.x) ?? 0;
 
       root.each(d => {
-        const gid = generations.get(d.data.id) ?? 0;
-        d.x = d.x - minX + 40;        // left padding
+        let gid = 0;
+
+        if (d.data.type === "union") {
+          const [aId, bId] = d.data.partnerIds;
+          const ga = generations.get(aId);
+          const gb = generations.get(bId);
+          gid = Math.min(ga ?? 0, gb ?? 0);
+        } else {
+          gid = generations.get(d.data.id) ?? 0;
+        }
+
+        d.x = d.x - minX + 60;
         d.y = gid * (nodeHeight + nodeSepY) + yOffset;
       });
 
-      yOffset += (root.height + 1) * (nodeHeight + nodeSepY) + 140;
+      yOffset += (root.height + 2) * (nodeHeight + nodeSepY) + 140;
       renderedTrees.push(root);
     });
 
-    // Collect links across all trees
-    const allLinks = renderedTrees.flatMap(root => root.links());
+    // Flatten
+    const rawNodes = renderedTrees.flatMap(r => r.descendants());
+    const rawLinks = renderedTrees.flatMap(r => r.links());
 
-    // LINKS (parent-child)
-    const linkSel = linksLayer.selectAll("path.link").data(allLinks, d => d.target.data.id);
+    // 1) Dedup nodes by id, keeping the "top-most" copy (smallest y)
+    const nodeById = new Map();
+    for (const n of rawNodes) {
+      const id = n.data.id;
+      const prev = nodeById.get(id);
+      if (!prev || n.y < prev.y) nodeById.set(id, n);
+    }
+    const allNodes = [...nodeById.values()];
+
+    // 2) Dedup links by source=>target, and only keep links whose endpoints survive
+    // Also prefer the shorter link if duplicates exist.
+    const linkByKey = new Map();
+    for (const l of rawLinks) {
+      const sid = l.source.data.id;
+      const tid = l.target.data.id;
+
+      const s = nodeById.get(sid);
+      const t = nodeById.get(tid);
+      if (!s || !t) continue;
+
+      const key = `${sid}=>${tid}`;
+      const length = Math.abs((t.y ?? 0) - (s.y ?? 0));
+
+      const prev = linkByKey.get(key);
+      if (!prev || length < prev._len) {
+        linkByKey.set(key, { source: s, target: t, _len: length });
+      }
+    }
+    const allLinks = [...linkByKey.values()].map(({ source, target }) => ({ source, target }));
+
+    // LINKS
+    const linkSel = linksLayer.selectAll("path.link").data(allLinks, d => `${d.source.data.id}=>${d.target.data.id}`);
     linkSel.enter()
       .append("path")
       .attr("class", "link")
       .attr("d", diagonal)
       .merge(linkSel)
-      .transition().duration(350)
+      .transition().duration(250)
       .attr("d", diagonal);
     linkSel.exit().remove();
 
     // NODES
-    const allNodes = renderedTrees.flatMap(root => root.descendants());
-    drawParentConnectors(allNodes);
     const nodeSel = nodesLayer.selectAll("g.node").data(allNodes, d => d.data.id);
 
     const nodeEnter = nodeSel.enter()
       .append("g")
       .attr("class", "node")
-      .attr("transform", d => `translate(${d.x},${d.y})`)
-      .on("click", (e, d) => {
-        // toggle collapse on double-click behavior; single-click shows details
-        if (e.detail === 2) {
-          toggle(d); update(); return;
-        }
-        showDetails(d);
-        highlightNode(d);
-      });
+      .attr("transform", d => `translate(${d.x},${d.y})`);
 
-    // Node box
-    nodeEnter.append("rect")
-      .attr("x", -nodeWidth/2).attr("y", -nodeHeight/2)
-      .attr("width", nodeWidth).attr("height", nodeHeight);
+    nodeEnter.each(function(d) {
+      const nodeG = d3.select(this);
 
-    // Status dot (living/deceased/unknown)
-    nodeEnter.append("circle")
-      .attr("class", "status-dot")
-      .attr("r", 5)
-      .attr("cx", -nodeWidth/2 + 12)
-      .attr("cy", -nodeHeight/2 + 12)
-      .attr("fill", d => {
-        const p = d.data.person;
-        if (p.deathYear) return getCssVar("--deceased");
-        if (p.birthYear) return getCssVar("--living");
-        return getCssVar("--unknown");
-      });
+      if (d.data.type === "union") {
+        const [aId, bId] = d.data.partnerIds;
+        const a = byId.get(aId);
+        const b = byId.get(bId);
 
-    // Name
-    nodeEnter.append("text")
-      .attr("class", "name")
-      .attr("text-anchor", "middle")
-      .attr("y", -6)
-      .text(d => d.data.person.name);
+        const half = nodeWidth / 2;
+        const offset = half + partnerGap / 2;
 
-    // Years
-    nodeEnter.append("text")
-      .attr("class", "years")
-      .attr("text-anchor", "middle")
-      .attr("y", 12)
-      .text(d => {
-        const p = d.data.person;
-        const b = p.birthYear ?? "—";
-        const dd = p.deathYear ? `–${p.deathYear}` : "";
-        return `${b}${dd}`;
-      });
+        // marriage line
+        nodeG.append("line")
+          .attr("class", "marriage-line")
+          .attr("x1", -offset)
+          .attr("y1", 0)
+          .attr("x2", offset)
+          .attr("y2", 0);
 
-    // Subtitle (optional, e.g., place/occupation)
-    nodeEnter.append("text")
-      .attr("class", "subtitle")
-      .attr("text-anchor", "middle")
-      .attr("y", 28)
-      .text(d => d.data.person.subtitle ?? "");
+        // left partner
+        const left = nodeG.append("g").attr("transform", `translate(${-offset},0)`);
+        left.append("rect")
+          .attr("x", -half).attr("y", -nodeHeight/2)
+          .attr("width", nodeWidth).attr("height", nodeHeight);
+        left.append("text")
+          .attr("class", "name")
+          .attr("text-anchor", "middle")
+          .attr("y", -10)
+          .text(a?.name ?? "—");
+        left.append("text")
+          .attr("class", "years")
+          .attr("text-anchor", "middle")
+          .attr("y", 8)
+          .text(() => {
+            const bY = a?.birthYear ?? "—";
+            const dY = a?.deathYear ? `–${a.deathYear}` : "";
+            return `${bY}${dY}`;
+          });
+        left.append("text")
+          .attr("class", "subtitle")
+          .attr("text-anchor", "middle")
+          .attr("y", 26)
+          .text(a?.currentLocation ?? "");
 
-    // Update existing
+        // right partner
+        const right = nodeG.append("g").attr("transform", `translate(${offset},0)`);
+        right.append("rect")
+          .attr("x", -half).attr("y", -nodeHeight/2)
+          .attr("width", nodeWidth).attr("height", nodeHeight);
+        right.append("text")
+          .attr("class", "name")
+          .attr("text-anchor", "middle")
+          .attr("y", -10)
+          .text(b?.name ?? "—");
+        right.append("text")
+          .attr("class", "years")
+          .attr("text-anchor", "middle")
+          .attr("y", 8)
+          .text(() => {
+            const bY = b?.birthYear ?? "—";
+            const dY = b?.deathYear ? `–${b.deathYear}` : "";
+            return `${bY}${dY}`;
+          });
+        right.append("text")
+          .attr("class", "subtitle")
+          .attr("text-anchor", "middle")
+          .attr("y", 26)
+          .text(b?.currentLocation ?? "");
+
+      } else {
+        // person node
+        nodeG.append("rect")
+          .attr("x", -nodeWidth/2).attr("y", -nodeHeight/2)
+          .attr("width", nodeWidth).attr("height", nodeHeight);
+
+        nodeG.append("circle")
+          .attr("class", "status-dot")
+          .attr("r", 5)
+          .attr("cx", -nodeWidth/2 + 12)
+          .attr("cy", -nodeHeight/2 + 12)
+          .attr("fill", () => {
+            const p = d.data.person;
+            if (p.deathYear) return getCssVar("--deceased");
+            if (p.birthYear) return getCssVar("--living");
+            return getCssVar("--unknown");
+          });
+
+        nodeG.append("text")
+          .attr("class", "name")
+          .attr("text-anchor", "middle")
+          .attr("y", -10)
+          .text(d.data.person.name);
+
+        nodeG.append("text")
+          .attr("class", "years")
+          .attr("text-anchor", "middle")
+          .attr("y", 8)
+          .text(() => {
+            const p = d.data.person;
+            const b = p.birthYear ?? "—";
+            const dd = p.deathYear ? `–${p.deathYear}` : "";
+            return `${b}${dd}`;
+          });
+
+        nodeG.append("text")
+          .attr("class", "subtitle")
+          .attr("text-anchor", "middle")
+          .attr("y", 26)
+          .text(d.data.person.currentLocation ?? "");
+      }
+    });
+
     nodeSel.merge(nodeEnter)
-      .transition().duration(350)
+      .transition().duration(250)
       .attr("transform", d => `translate(${d.x},${d.y})`);
 
     nodeSel.exit().remove();
-
-    // MARRIAGE LINES (lightweight: draw a short dashed line between spouses at the same depth if nearby)
-    const marriageLines = [];
-    data.people.forEach(p => {
-      (p.spouseIds || []).forEach(sp => {
-        // Avoid duplicates by ordering pair
-        if (p.id < sp) {
-          const a = allNodes.find(n => n.data.id === p.id);
-          const b = allNodes.find(n => n.data.id === sp);
-          if (a && b && a.depth === b.depth) {
-            marriageLines.push({ a, b, key: `${p.id}-${sp}` });
-          }
-        }
-      });
-    });
-
-    const marriageSel = marriagesLayer.selectAll("path.marriage").data(marriageLines, d => d.key);
-    marriageSel.enter()
-      .append("path")
-      .attr("class", "link marriage")
-      .classed("marriage", true)
-      .attr("d", d => shortLine(d.a, d.b))
-      .merge(marriageSel)
-      .transition().duration(350)
-      .attr("d", d => shortLine(d.a, d.b));
-    marriageSel.exit().remove();
-    const allNodesAgain = renderedTrees.flatMap(root => root.descendants()); 
   }
 
-  function diagonal(link){
-    // Smooth vertical elbow
-    const sx = link.source.x, sy = link.source.y;
-    const tx = link.target.x, ty = link.target.y;
-    const mx = (sx + tx) / 2;
-    return `M ${sx},${sy} C ${mx},${sy} ${mx},${ty} ${tx},${ty}`;
-  }
-
-  function drawParentConnectors(allNodes) {
-    const connectors = [];
-
-    allNodes.forEach(child => {
-      const parents = (child.data.person.parentIds || [])
-        .map(id => allNodes.find(n => n.data.id === id))
-        .filter(Boolean);
-
-      if (parents.length < 2) return;
-
-      const midX = d3.mean(parents, p => p.x);
-      const joinY = parents[0].y + nodeHeight / 2;
-      const childY = child.y - nodeHeight / 2;
-
-      // from parents to join
-      parents.forEach(p => {
-        connectors.push({
-          x1: p.x,
-          y1: p.y + nodeHeight / 2,
-          x2: midX,
-          y2: joinY
-        });
-      });
-
-      // down to child
-      connectors.push({
-        x1: midX,
-        y1: joinY,
-        x2: midX,
-        y2: childY
-      });
-
-      connectors.push({
-        x1: midX,
-        y1: childY,
-        x2: child.x,
-        y2: childY
-      });
-    });
-
-    const sel = parentConnectorLayer
-      .selectAll("line")
-      .data(connectors);
-
-    sel.enter()
-      .append("line")
-      .attr("stroke", "#2e7d32")
-      .attr("stroke-width", 3)
-      .merge(sel)
-      .attr("x1", d => d.x1)
-      .attr("y1", d => d.y1)
-      .attr("x2", d => d.x2)
-      .attr("y2", d => d.y2);
-
-    sel.exit().remove();
-  }
-
-  function shortLine(a, b){
-    // Little dashed line between spouse node boxes (center to center)
-    return `M ${a.x},${a.y} L ${b.x},${b.y}`;
-  }
-
-  function toggle(d){
-    if (d.children) { d._children = d.children; d.children = null; }
-    else { d.children = d._children; d._children = null; }
-  }
-
-  function getCssVar(n){
-    return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  }
-
-  // ---- Details panel ----
-  const el = {
-    photo: document.getElementById("personPhoto"),
-    name: document.getElementById("personName"),
-    years: document.getElementById("personYears"),
-    notes: document.getElementById("personNotes"),
-    parents: document.getElementById("personParents"),
-    spouses: document.getElementById("personSpouses"),
-    children: document.getElementById("personChildren")
-  };
-
-  function personLabel(id){
-    const p = byId.get(id); return p ? p.name : "—";
-  }
-
-  function listNames(ids){
-    if (!ids || ids.length === 0) return "—";
-    return ids.map(personLabel).join(", ");
-  }
-
-  function childrenOfPerson(pid){
-    return sortChildren(childrenOf.get(pid));
-  }
-
-  function showDetails(d){
-    const p = d.data.person;
-    el.name.textContent = p.name;
-    const yrs = p.birthYear ? `${p.birthYear}` : "";
-    el.years.textContent = p.deathYear ? `${yrs} – ${p.deathYear}` : yrs || "—";
-    el.notes.textContent = p.notes || "";
-    el.parents.textContent = listNames(p.parentIds);
-    el.spouses.textContent = listNames(p.spouseIds);
-    el.children.textContent = listNames(childrenOfPerson(p.id));
-
-    const photoSrc = p.photo ? `./photos/${p.photo}` : "";
-    el.photo.src = photoSrc;
-    el.photo.alt = p.photo ? `${p.name}'s photo` : "";
-  }
-
-  // ---- Search and highlight ----
-  let highlighted = null;
-  function highlightNode(d){
-    if (highlighted) highlighted.classed("highlight", false);
-    const sel = nodesLayer.selectAll("g.node").filter(n => n.data.id === d.data.id);
-    sel.classed("highlight", true);
-    highlighted = sel;
-
-    // Smoothly pan/zoom to the node
-    const t = d3.zoomTransform(svg.node());
-    const scale = t.k;
-    const cx = width()/2, cy = height()/2;
-    const targetX = d.x, targetY = d.y;
-    const translate = [cx - targetX*scale, cy - targetY*scale];
-    svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
-  }
-
-  function resetView(){
-    svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(40, 40).scale(0.85));
-    nodesLayer.selectAll("g.node").classed("highlight", false);
-    highlighted = null;
-  }
-
-  // document.getElementById("resetBtn").addEventListener("click", resetView);
-
-  // document.getElementById("searchBtn").addEventListener("click", () => {
-  //   const q = document.getElementById("searchInput").value.trim().toLowerCase();
-  //   if (!q) return;
-  //   const node = nodesLayer.selectAll("g.node").filter(d => (d.data.person.name || "").toLowerCase().includes(q)).data()[0];
-  //   if (node) {
-  //     // Expand path to this node
-  //     expandPathTo(node);
-  //     update();
-  //     // we need a tiny delay for layout to settle
-  //     setTimeout(() => {
-  //       highlightNode(node);
-  //       showDetails(node);
-  //     }, 20);
-  //   }
-  // });
-
-  // document.getElementById("collapseAllBtn").addEventListener("click", () => {
-  //   forests.forEach(root => {
-  //     root.each(d => { if (d.children) { d._children = d.children; d.children = null; } });
-  //     // Keep top level expanded
-  //     root.children = root._children;
-  //   });
-  //   update();
-  // });
-
-  // document.getElementById("expandAllBtn").addEventListener("click", () => {
-  //   forests.forEach(root => {
-  //     root.each(d => { if (d._children) { d.children = d._children; d._children = null; } });
-  //   });
-  //   update();
-  // });
-
-  function expandPathTo(target){
-    // climb to the root and expand children along the way
-    let d = target;
-    while (d.parent){
-      if (d.parent._children) { d.parent.children = d.parent._children; d.parent._children = null; }
-      d = d.parent;
-    }
-  }
-
-  // Initial render + view
   update();
-  // resetView();
+  svg.call(zoom.transform, d3.zoomIdentity.translate(40, 80).scale(0.9));
 
-  // Center single-person trees (no parent/child links)
-if (forests.length === 1 && forests[0].descendants().length === 1) {
-  const lone = forests[0].descendants()[0];
-  lone.x = width() / 2;
-  lone.y = height() / 2;
-
-  const node = nodesLayer.selectAll("g.node").data([lone]);
-  const nodeEnter = node.enter()
-    .append("g")
-    .attr("class", "node")
-    .attr("transform", `translate(${lone.x},${lone.y})`)
-    .on("click", () => showDetails({ data: { person: lone.data.person } }));
-
-  nodeEnter.append("rect")
-    .attr("x", -90)
-    .attr("y", -40)
-    .attr("width", 180)
-    .attr("height", 80)
-    .attr("rx", 25)
-    .attr("ry", 25)
-    .attr("fill", "#c3e6cb")
-    .attr("stroke", "#2e7d32")
-    .attr("stroke-width", 2);
-
-  nodeEnter.append("text")
-    .attr("text-anchor", "middle")
-    .attr("dy", "0.3em")
-    .attr("font-size", "20px")
-    .attr("fill", "#1b5e20")
-    .text(lone.data.person.name);
-}
-
-  // Resize handling
-  window.addEventListener("resize", () => {
-    // No specific action needed; SVG is responsive. We could recompute layout if desired.
-  });
+  window.addEventListener("resize", () => update());
 })();
-
-
