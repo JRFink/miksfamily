@@ -196,6 +196,15 @@ svg#treeSvg {
   filter: drop-shadow(0 0 10px rgba(226,193,97,0.5));
 }
 
+.node rect.person-box,
+.node rect.partner-box {
+  fill: #c3e6cb;
+  stroke: #2e7d32;
+  stroke-width: 2px;
+  rx: 20;
+  ry: 20;
+}
+
 /* ───────────── Footer ───────────── */
 .site-footer {
   justify-content: center;

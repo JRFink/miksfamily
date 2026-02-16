@@ -49,6 +49,17 @@
   }
 
   function sharedChildren(aId, bId) {
+    const a = byId.get(aId);
+    const b = byId.get(bId);
+
+    // 1) If both partners have childIds lists, use intersection.
+    const aKids = new Set(a?.childIds || []);
+    const bKids = new Set(b?.childIds || []);
+    if (aKids.size && bKids.size) {
+      return [...aKids].filter(id => bKids.has(id));
+    }
+
+    // 2) Fallback: scan all people by parentIds (what you had before)
     return data.people
       .filter(ch => (ch.parentIds || []).includes(aId) && (ch.parentIds || []).includes(bId))
       .map(ch => ch.id);
@@ -120,19 +131,26 @@
     if (!person) return null;
 
     const spouseId = (person.spouseIds || [])[0];
+
+    // If there is a spouse, ALWAYS return a union node so spouse is visible.
     if (spouseId && byId.has(spouseId)) {
       const key = pairKey(pid, spouseId);
-      const union = unionsByKey.get(key);
-      if (union && union.childrenIds && union.childrenIds.length > 0) {
-        return {
-          id: union.id,
-          type: "union",
-          partnerIds: union.partnerIds,
-          children: union.childrenIds.map(makeHierarchyForPerson).filter(Boolean)
-        };
-      }
+      const union = unionsByKey.get(key) || {
+        id: `union:${key}`,
+        type: "union",
+        partnerIds: key.split("__"),
+        childrenIds: sharedChildren(pid, spouseId)
+      };
+
+      return {
+        id: union.id,
+        type: "union",
+        partnerIds: union.partnerIds,
+        children: (union.childrenIds || []).map(makeHierarchyForPerson).filter(Boolean)
+      };
     }
 
+    // No spouse: render as a person node with children
     const kids = sortChildren(childrenOf.get(pid));
     return {
       id: pid,
@@ -168,88 +186,187 @@
     };
   }
 
-  const forests = [
-    ...unionRoots.map(u => d3.hierarchy(makeHierarchyForUnion(u), d => d.children)),
-    ...loneRoots.map(r => d3.hierarchy(makeHierarchyForPerson(r.id), d => d.children))
-  ];
-
   // ---- Layout config ----
-  const nodeWidth = 180;
-  const nodeHeight = 74;
-  const nodeSepX = 40;
-  const nodeSepY = 110;
-
+  const baseNodeHeight = 74;
+  const minNodeWidth = 180;
+  const levelGapY = 170;       // vertical gap between generations
+  const baseSepX = 40;         // tree spacing baseline
   const partnerGap = 28;
 
+  function getCssVar(n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  }
+
   function anchorPoint(node, which) {
-    // node.x/node.y are the CENTER of the node-group
-    // For people and unions we treat "top" and "bottom" as +/- nodeHeight/2
     const x = node.x;
-
-    if (which === "top") return { x, y: node.y - nodeHeight / 2 };
-    if (which === "bottom") return { x, y: node.y + nodeHeight / 2 };
-
+    const h = node._h ?? baseNodeHeight;
+    if (which === "top") return { x, y: node.y - h / 2 };
+    if (which === "bottom") return { x, y: node.y + h / 2 };
     return { x, y: node.y };
   }
 
   function diagonal(link) {
     const s = anchorPoint(link.source, "bottom");
     const t = anchorPoint(link.target, "top");
-
     const mx = (s.x + t.x) / 2;
     return `M ${s.x},${s.y} C ${mx},${s.y} ${mx},${t.y} ${t.x},${t.y}`;
   }
 
-  function getCssVar(n) {
-    return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  // --- Build ONE combined root so multiple top couples sit on the same "top row"
+  const forestChildren = [
+    ...unionRoots.map(u => makeHierarchyForUnion(u)),
+    ...loneRoots.map(r => makeHierarchyForPerson(r.id)).filter(Boolean)
+  ];
+
+  const superRoot = d3.hierarchy(
+    { id: "__root__", type: "root", children: forestChildren },
+    d => d.children
+  );
+
+  // --- Measure + resize helpers
+  function measureTextWidth(textEl) {
+    // Safe even before fonts fully load; good enough for dynamic boxes.
+    try {
+      return textEl.node().getComputedTextLength();
+    } catch {
+      return (textEl.text() || "").length * 10;
+    }
+  }
+
+  function resizePersonNode(nodeG, d) {
+    const padX = 26;
+    const nameW = measureTextWidth(nodeG.select("text.name"));
+    const yearsW = measureTextWidth(nodeG.select("text.years"));
+    const subW  = measureTextWidth(nodeG.select("text.subtitle"));
+    const w = Math.max(minNodeWidth, nameW + padX, yearsW + padX, subW + padX);
+    const h = baseNodeHeight;
+
+    d._w = w;
+    d._h = h;
+
+    nodeG.select("rect.person-box")
+      .attr("x", -w / 2)
+      .attr("y", -h / 2)
+      .attr("width", w)
+      .attr("height", h);
+
+    nodeG.select("circle.status-dot")
+      .attr("cx", -w / 2 + 12)
+      .attr("cy", -h / 2 + 12);
+  }
+
+  function resizeUnionNode(nodeG, d) {
+    const padX = 26;
+    const leftG = nodeG.select("g.partner-left");
+    const rightG = nodeG.select("g.partner-right");
+
+    const lNameW = measureTextWidth(leftG.select("text.name"));
+    const lYearsW = measureTextWidth(leftG.select("text.years"));
+    const lSubW = measureTextWidth(leftG.select("text.subtitle"));
+    const wL = Math.max(minNodeWidth, lNameW + padX, lYearsW + padX, lSubW + padX);
+
+    const rNameW = measureTextWidth(rightG.select("text.name"));
+    const rYearsW = measureTextWidth(rightG.select("text.years"));
+    const rSubW = measureTextWidth(rightG.select("text.subtitle"));
+    const wR = Math.max(minNodeWidth, rNameW + padX, rYearsW + padX, rSubW + padX);
+
+    const h = baseNodeHeight;
+    const offsetL = (wL / 2) + (partnerGap / 2);
+    const offsetR = (wR / 2) + (partnerGap / 2);
+
+    // Store union bounding box (used by collision)
+    d._w = wL + wR + partnerGap;
+    d._h = h;
+
+    // Place partner groups so the union center sits between them
+    leftG.attr("transform", `translate(${-offsetL},0)`);
+    rightG.attr("transform", `translate(${offsetR},0)`);
+
+    leftG.select("rect.partner-box")
+      .attr("x", -wL / 2).attr("y", -h / 2)
+      .attr("width", wL).attr("height", h);
+
+    rightG.select("rect.partner-box")
+      .attr("x", -wR / 2).attr("y", -h / 2)
+      .attr("width", wR).attr("height", h);
+
+    nodeG.select("line.marriage-line")
+      .attr("x1", -offsetL)
+      .attr("x2", offsetR)
+      .attr("y1", 0)
+      .attr("y2", 0);
   }
 
   // ---- Render ----
   function update() {
-    const renderedTrees = [];
-    let yOffset = 60;
+    // 1) Run a standard tree layout once (for x ordering)
+    const layout = d3.tree().nodeSize([minNodeWidth + baseSepX, baseNodeHeight + 120]);
+    layout(superRoot);
 
-    forests.forEach(root => {
-      const layout = d3.tree().nodeSize([nodeWidth + nodeSepX, nodeHeight + nodeSepY]);
-      layout(root);
+    // 2) Apply generation-based Y so ancestors are always at the top
+    const all = superRoot.descendants().filter(d => d.data.type !== "root");
 
-      const minX = d3.min(root.descendants(), d => d.x) ?? 0;
+    function genOfPersonId(pid) {
+      const p = byId.get(pid);
+      const tagged = p?.generation;
+      if (typeof tagged === "number") return tagged;
+      return generations.get(pid) ?? 0;
+    }
 
-      root.each(d => {
-        let gid = 0;
-
-        if (d.data.type === "union") {
-          const [aId, bId] = d.data.partnerIds;
-          const ga = generations.get(aId);
-          const gb = generations.get(bId);
-          gid = Math.min(ga ?? 0, gb ?? 0);
-        } else {
-          gid = generations.get(d.data.id) ?? 0;
-        }
-
-        d.x = d.x - minX + 60;
-        d.y = gid * (nodeHeight + nodeSepY) + yOffset;
-      });
-
-      yOffset += (root.height + 2) * (nodeHeight + nodeSepY) + 140;
-      renderedTrees.push(root);
+    const gens = all.map(d => {
+      if (d.data.type === "union") {
+        const [aId, bId] = d.data.partnerIds;
+        return Math.min(genOfPersonId(aId), genOfPersonId(bId));
+      }
+      return genOfPersonId(d.data.id);
     });
 
-    // Flatten
-    const rawNodes = renderedTrees.flatMap(r => r.descendants());
-    const rawLinks = renderedTrees.flatMap(r => r.links());
+    const minGen = d3.min(gens) ?? 0;
 
-    // 1) Dedup nodes by id, keeping the "top-most" copy (smallest y)
+    // Normalize x so it starts near left margin
+    const minX = d3.min(all, d => d.x) ?? 0;
+
+    all.forEach((d, i) => {
+      const g0 = gens[i];
+
+      d.x = d.x - minX + 90;
+
+      // Snap to generation row (top ancestors have smaller y)
+      d.y = (g0 - minGen) * levelGapY + 80;
+
+      // Hard-pin Y so forces can never move nodes between rows
+      d.fy = d.y;
+    });
+
+    // 3) Dedup nodes by id, BUT reconcile X by averaging all occurrences
+    const buckets = new Map(); // id -> { reps: [], sumX, minY }
+      for (const n of all) {
+        const id = n.data.id;
+        if (!buckets.has(id)) buckets.set(id, { reps: [], sumX: 0, minY: Infinity });
+        const b = buckets.get(id);
+        b.reps.push(n);
+        b.sumX += n.x;
+        b.minY = Math.min(b.minY, n.y);
+      }
+
     const nodeById = new Map();
-    for (const n of rawNodes) {
-      const id = n.data.id;
-      const prev = nodeById.get(id);
-      if (!prev || n.y < prev.y) nodeById.set(id, n);
+    for (const [id, b] of buckets.entries()) {
+      // choose the rep with the smallest Y (top-most), but set its x to the average
+      const rep = b.reps.reduce((best, cur) => (cur.y < best.y ? cur : best), b.reps[0]);
+      const avgX = b.sumX / b.reps.length;
+
+      // IMPORTANT: apply avgX to all occurrences, so links/forces agree
+      b.reps.forEach(n => { n.x = avgX; });
+
+      nodeById.set(id, rep);
     }
+
     const allNodes = [...nodeById.values()];
 
-    // 2) Dedup links by source=>target, and only keep links whose endpoints survive
-    // Also prefer the shorter link if duplicates exist.
+    // 4) Dedup links
+    const rawLinks = superRoot.links()
+      .filter(l => l.source.data.type !== "root" && l.target.data.type !== "root");
+
     const linkByKey = new Map();
     for (const l of rawLinks) {
       const sid = l.source.data.id;
@@ -269,18 +386,12 @@
     }
     const allLinks = [...linkByKey.values()].map(({ source, target }) => ({ source, target }));
 
-    // LINKS
-    const linkSel = linksLayer.selectAll("path.link").data(allLinks, d => `${d.source.data.id}=>${d.target.data.id}`);
-    linkSel.enter()
-      .append("path")
-      .attr("class", "link")
-      .attr("d", diagonal)
-      .merge(linkSel)
-      .transition().duration(250)
-      .attr("d", diagonal);
-    linkSel.exit().remove();
+    // ----------------------------
+    // IMPORTANT CHANGE:
+    // Build/resize nodes BEFORE sim so d._w/d._h exist for collide().
+    // ----------------------------
 
-    // NODES
+    // NODES (enter/update)
     const nodeSel = nodesLayer.selectAll("g.node").data(allNodes, d => d.data.id);
 
     const nodeEnter = nodeSel.enter()
@@ -288,6 +399,7 @@
       .attr("class", "node")
       .attr("transform", d => `translate(${d.x},${d.y})`);
 
+    // Build node contents only on enter
     nodeEnter.each(function(d) {
       const nodeG = d3.select(this);
 
@@ -296,78 +408,37 @@
         const a = byId.get(aId);
         const b = byId.get(bId);
 
-        const half = nodeWidth / 2;
-        const offset = half + partnerGap / 2;
+        nodeG.append("line").attr("class", "marriage-line");
 
-        // marriage line
-        nodeG.append("line")
-          .attr("class", "marriage-line")
-          .attr("x1", -offset)
-          .attr("y1", 0)
-          .attr("x2", offset)
-          .attr("y2", 0);
+        // left partner group
+        const left = nodeG.append("g").attr("class", "partner-left");
+        left.append("rect").attr("class", "partner-box");
+        left.append("text").attr("class", "name").attr("text-anchor", "middle").attr("y", -10).text(a?.name ?? "—");
+        left.append("text").attr("class", "years").attr("text-anchor", "middle").attr("y", 8).text(() => {
+          const bY = a?.birthYear ?? "—";
+          const dY = a?.deathYear ? `–${a.deathYear}` : "";
+          return `${bY}${dY}`;
+        });
+        left.append("text").attr("class", "subtitle").attr("text-anchor", "middle").attr("y", 26).text(a?.currentLocation ?? "");
 
-        // left partner
-        const left = nodeG.append("g").attr("transform", `translate(${-offset},0)`);
-        left.append("rect")
-          .attr("x", -half).attr("y", -nodeHeight/2)
-          .attr("width", nodeWidth).attr("height", nodeHeight);
-        left.append("text")
-          .attr("class", "name")
-          .attr("text-anchor", "middle")
-          .attr("y", -10)
-          .text(a?.name ?? "—");
-        left.append("text")
-          .attr("class", "years")
-          .attr("text-anchor", "middle")
-          .attr("y", 8)
-          .text(() => {
-            const bY = a?.birthYear ?? "—";
-            const dY = a?.deathYear ? `–${a.deathYear}` : "";
-            return `${bY}${dY}`;
-          });
-        left.append("text")
-          .attr("class", "subtitle")
-          .attr("text-anchor", "middle")
-          .attr("y", 26)
-          .text(a?.currentLocation ?? "");
-
-        // right partner
-        const right = nodeG.append("g").attr("transform", `translate(${offset},0)`);
-        right.append("rect")
-          .attr("x", -half).attr("y", -nodeHeight/2)
-          .attr("width", nodeWidth).attr("height", nodeHeight);
-        right.append("text")
-          .attr("class", "name")
-          .attr("text-anchor", "middle")
-          .attr("y", -10)
-          .text(b?.name ?? "—");
-        right.append("text")
-          .attr("class", "years")
-          .attr("text-anchor", "middle")
-          .attr("y", 8)
-          .text(() => {
-            const bY = b?.birthYear ?? "—";
-            const dY = b?.deathYear ? `–${b.deathYear}` : "";
-            return `${bY}${dY}`;
-          });
-        right.append("text")
-          .attr("class", "subtitle")
-          .attr("text-anchor", "middle")
-          .attr("y", 26)
-          .text(b?.currentLocation ?? "");
+        // right partner group
+        const right = nodeG.append("g").attr("class", "partner-right");
+        right.append("rect").attr("class", "partner-box");
+        right.append("text").attr("class", "name").attr("text-anchor", "middle").attr("y", -10).text(b?.name ?? "—");
+        right.append("text").attr("class", "years").attr("text-anchor", "middle").attr("y", 8).text(() => {
+          const bY = b?.birthYear ?? "—";
+          const dY = b?.deathYear ? `–${b.deathYear}` : "";
+          return `${bY}${dY}`;
+        });
+        right.append("text").attr("class", "subtitle").attr("text-anchor", "middle").attr("y", 26).text(b?.currentLocation ?? "");
 
       } else {
         // person node
-        nodeG.append("rect")
-          .attr("x", -nodeWidth/2).attr("y", -nodeHeight/2)
-          .attr("width", nodeWidth).attr("height", nodeHeight);
+        nodeG.append("rect").attr("class", "person-box");
 
         nodeG.append("circle")
           .attr("class", "status-dot")
           .attr("r", 5)
-          .attr("cx", -nodeWidth/2 + 12)
-          .attr("cy", -nodeHeight/2 + 12)
           .attr("fill", () => {
             const p = d.data.person;
             if (p.deathYear) return getCssVar("--deceased");
@@ -400,12 +471,78 @@
       }
     });
 
-    nodeSel.merge(nodeEnter)
-      .transition().duration(250)
-      .attr("transform", d => `translate(${d.x},${d.y})`);
+    // Merge selection so we can resize BOTH enter and update nodes
+    const nodeMerge = nodeSel.merge(nodeEnter);
+    const COLLIDE_PAD = 26;
 
+    // Resize every node on every update (critical for correct collide radius)
+    nodeMerge.each(function(d) {
+      const nodeG = d3.select(this);
+      if (d.data.type === "union") resizeUnionNode(nodeG, d);
+      else resizePersonNode(nodeG, d);
+    });
+
+    // Remove exited nodes
     nodeSel.exit().remove();
+
+    // 5) FORCE RELAXATION (X only) AFTER sizing so collision uses real widths
+    const sim = d3.forceSimulation(allNodes)
+    .force("link", d3.forceLink(allLinks)
+      .id(d => d.data.id)
+      .distance(60)     // small = pulls components together
+      .strength(0.20)
+    )
+    .force("x", d3.forceX(d => d.x).strength(0.10))
+    .force("center", d3.forceX(0).strength(0.06))
+    .force("collide", d3.forceCollide(d => {
+      const w = d._w ?? minNodeWidth;
+      // width-based radius is what you actually want for horizontal box overlap
+      return (w / 2) + COLLIDE_PAD;
+    }).iterations(6))
+    .stop();
+
+    for (let i = 0; i < 140; i++) sim.tick();
+
+    // Optional: after sim, shift so everything is comfortably on-screen from the left
+    const minAfter = d3.min(allNodes, n => n.x) ?? 0;
+    const shift = 90 - minAfter;
+    allNodes.forEach(n => { n.x += shift; });
+
+    // --- FINAL PASS: enforce no overlap within each generation row (same y) ---
+    const ROW_GAP = 24; // extra horizontal spacing between boxes
+    const rows = d3.group(allNodes, d => d.y);
+
+    for (const [, rowNodes] of rows) {
+      rowNodes.sort((a, b) => a.x - b.x);
+
+      for (let i = 1; i < rowNodes.length; i++) {
+        const prev = rowNodes[i - 1];
+        const cur  = rowNodes[i];
+
+        const prevW = prev._w ?? minNodeWidth;
+        const curW  = cur._w  ?? minNodeWidth;
+
+        const minX = prev.x + (prevW / 2) + (curW / 2) + ROW_GAP;
+        if (cur.x < minX) cur.x = minX;
+      }
+    }
+
+    // 6) LINKS (after sim so they match final positions)
+    const linkSel = linksLayer.selectAll("path.link")
+      .data(allLinks, d => `${d.source.data.id}=>${d.target.data.id}`);
+
+    linkSel.enter()
+      .append("path")
+      .attr("class", "link")
+      .merge(linkSel)
+      .attr("d", diagonal);
+
+    linkSel.exit().remove();
+
+    // 7) Apply final node transforms
+    nodeMerge.attr("transform", d => `translate(${d.x},${d.y})`);
   }
+ 
 
   update();
   svg.call(zoom.transform, d3.zoomIdentity.translate(40, 80).scale(0.9));
