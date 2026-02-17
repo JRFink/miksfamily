@@ -498,6 +498,19 @@
       "spouseIds": ["andrew-reed"]
     },
     {
+      "id": "vincent-panicucci",
+      "generation": 0,
+      "name": "Vincent Panicucci",
+      "birthYear": 1991,
+      "birthMonth": 1,
+      "birthDay": 10,
+      "photo": "",
+      "currentLocation": "Broomfield, CO",
+      "notes": "",
+      "parentIds": ["leanna-miks-panicucci"],
+      "spouseIds": []
+    },
+    {
       "id": "shawn-miks",
       "generation": 0,
       "name": "Shawn Miks",
@@ -509,6 +522,19 @@
       "notes": "",
       "parentIds": ["john-miks-uncle"],
       "spouseIds": []
+    },
+    {
+      "id": "dominic-panicucci",
+      "generation": 0,
+      "name": "Dominic Panicucci",
+      "birthYear": 1992,
+      "birthMonth": 10,
+      "birthDay": 21,
+      "photo": "",
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["leanna-miks-panicucci"],
+      "spouseIds": ["allie-panicucci"]
     },
     {
       "id": "andrew-reed",
@@ -550,6 +576,19 @@
       "spouseIds": ["matthew-miks"]
     },
     {
+      "id": "allie-panicucci",
+      "generation": 0,
+      "name": "Allie Panicucci",
+      "birthYear": 1994,
+      "birthMonth": 2,
+      "birthDay": 24,
+      "photo": "",
+      "currentLocation": "Broomfield, CO",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["dominic-panicucci"]
+    },
+    {
       "id": "jeffrey-r-fink",
       "generation": 0,
       "name": "Jeff Fink",
@@ -558,6 +597,45 @@
       "currentLocation": "Queens, NY",
       "notes": "",
       "parentIds": ["michael-t-fink", "maureen-e-fink"],
+      "spouseIds": []
+    },
+    {
+      "id": "gian-panicucci",
+      "generation": 0,
+      "name": "Gian Panicucci",
+      "birthYear": 1994,
+      "birthMonth": 12,
+      "birthDay": 22,
+      "photo": "",
+      "currentLocation": "Arvada, CO",
+      "notes": "",
+      "parentIds": ["leanna-miks-panicucci"],
+      "spouseIds": ["lauren-panicucci"]
+    },
+    {
+      "id": "lauren-panicucci",
+      "generation": 0,
+      "name": "Lauren Panicucci",
+      "birthYear": 1995,
+      "birthMonth": 8,
+      "birthDay": 11,
+      "photo": "",
+      "currentLocation": "Arvada, CO",
+      "notes": "",
+      "parentIds": ["leanna-miks-panicucci"],
+      "spouseIds": ["gian-panicucci"]
+    },
+    {
+      "id": "dante-panicucci",
+      "generation": 0,
+      "name": "Dante Panicucci",
+      "birthYear": 1996,
+      "birthMonth": 11,
+      "birthDay": 29,
+      "photo": "",
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["leanna-miks-panicucci"],
       "spouseIds": []
     },
     {
