@@ -362,7 +362,7 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": ["michael-t-fink", "maureen-e-fink"],
-      "spouseIds": []
+      "spouseIds": ["kathryn-sawyer-fink"]
     },
     {
       "id": "mary-yeast",
@@ -385,6 +385,19 @@
       "notes": "",
       "parentIds": [],
       "spouseIds": ["mary-yeast"]
+    },
+    {
+      "id": "kathryn-sawyer-fink",
+      "generation": 0,
+      "name": "Kathryn Fink",
+      "birthYear": 1985,
+      "birthMonth": 2,
+      "birthDay": 5,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["paul-e-fink"]
     },
     {
       "id": "chris-miks",
@@ -456,7 +469,7 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": ["michael-t-fink", "maureen-e-fink"],
-      "spouseIds": []
+      "spouseIds": ["meg-jones-fink"]
     },
     {
       "id": "angela-miks",
@@ -470,6 +483,19 @@
       "notes": "",
       "parentIds": ["jeff-miks-uncle", "megan-miks"],
       "spouseIds": []
+    },
+    {
+      "id": "meg-jones-fink",
+      "generation": 0,
+      "name": "Meg Fink",
+      "birthYear": 1988,
+      "birthMonth": 4,
+      "birthDay": 21,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["john-d-fink"]
     },
     {
       "id": "natasha-miks",
