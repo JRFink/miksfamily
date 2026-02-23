@@ -35,13 +35,18 @@
 
   // Optional sibling ordering
   function sortChildren(ids) {
-    return [...(ids || [])].sort((a, b) => {
-      const pa = byId.get(a), pb = byId.get(b);
-      const oa = pa?.order ?? 0, ob = pb?.order ?? 0;
-      if (oa !== ob) return oa - ob;
-      return (pa?.name || "").localeCompare(pb?.name || "");
-    });
-  }
+  return [...(ids || [])].sort((a, b) => {
+    const pa = byId.get(a);
+    const pb = byId.get(b);
+
+    const ba = pa?.birthYear ?? 9999;
+    const bb = pb?.birthYear ?? 9999;
+
+    if (ba !== bb) return ba - bb;
+
+    return (pa?.name || "").localeCompare(pb?.name || "");
+  });
+}
 
   // ---- Unions ----
   function pairKey(a, b) {
@@ -297,11 +302,29 @@
       .attr("y2", 0);
   }
 
+  function birthOrderIndex(node) {
+    if (node.data.type === "union") {
+      const [aId] = node.data.partnerIds;
+      const p = byId.get(aId);
+      return p?.birthYear ?? 9999;
+    }
+
+    const p = byId.get(node.data.id);
+    return p?.birthYear ?? 9999;
+  }
+
   // ---- Render ----
   function update() {
     // 1) Run a standard tree layout once (for x ordering)
-    const layout = d3.tree().nodeSize([minNodeWidth + baseSepX, baseNodeHeight + 120]);
+    const layout = d3.tree()
+      .nodeSize([40, baseNodeHeight + 120])   // small initial horizontal spacing
+      .separation(() => 0.6);                 // don't over-separate siblings
     layout(superRoot);
+    superRoot.each(d => {
+    if (d.parent) {
+      d.x = d.parent.x + d.x * 0.6;
+    }
+  });
 
     // 2) Apply generation-based Y so ancestors are always at the top
     const all = superRoot.descendants().filter(d => d.data.type !== "root");
@@ -404,9 +427,17 @@
       const nodeG = d3.select(this);
 
       if (d.data.type === "union") {
-        const [aId, bId] = d.data.partnerIds;
-        const a = byId.get(aId);
-        const b = byId.get(bId);
+        let [aId, bId] = d.data.partnerIds;
+        let a = byId.get(aId);
+        let b = byId.get(bId);
+
+        const aBirth = a?.birthYear ?? 9999;
+        const bBirth = b?.birthYear ?? 9999;
+
+        if (bBirth < aBirth) {
+          [aId, bId] = [bId, aId];
+          [a, b] = [b, a];
+        }
 
         nodeG.append("line").attr("class", "marriage-line");
 
@@ -473,7 +504,7 @@
 
     // Merge selection so we can resize BOTH enter and update nodes
     const nodeMerge = nodeSel.merge(nodeEnter);
-    const COLLIDE_PAD = 26;
+    const COLLIDE_PAD = 18;
 
     // Resize every node on every update (critical for correct collide radius)
     nodeMerge.each(function(d) {
@@ -489,11 +520,11 @@
     const sim = d3.forceSimulation(allNodes)
     .force("link", d3.forceLink(allLinks)
       .id(d => d.data.id)
-      .distance(60)     // small = pulls components together
-      .strength(0.20)
+      .distance(50)        // tighter vertical components
+      .strength(0.35)      // stronger pull together
     )
-    .force("x", d3.forceX(d => d.x).strength(0.10))
-    .force("center", d3.forceX(0).strength(0.06))
+    .force("x", d3.forceX(d => d.parent ? d.parent.x : d.x).strength(0.15)) // stronger return to origin
+    .force("center", d3.forceX(0).strength(0.15))   // global gravity inward
     .force("collide", d3.forceCollide(d => {
       const w = d._w ?? minNodeWidth;
       // width-based radius is what you actually want for horizontal box overlap
@@ -513,18 +544,22 @@
     const rows = d3.group(allNodes, d => d.y);
 
     for (const [, rowNodes] of rows) {
-      rowNodes.sort((a, b) => a.x - b.x);
 
-      for (let i = 1; i < rowNodes.length; i++) {
-        const prev = rowNodes[i - 1];
-        const cur  = rowNodes[i];
+      rowNodes.sort((a, b) => {
+        const ba = birthOrderIndex(a);
+        const bb = birthOrderIndex(b);
+        if (ba !== bb) return ba - bb;
+        return (a.data.id || "").localeCompare(b.data.id || "");
+      });
 
-        const prevW = prev._w ?? minNodeWidth;
-        const curW  = cur._w  ?? minNodeWidth;
+      let cursor = 90;
 
-        const minX = prev.x + (prevW / 2) + (curW / 2) + ROW_GAP;
-        if (cur.x < minX) cur.x = minX;
+      for (const n of rowNodes) {
+        const w = n._w ?? minNodeWidth;
+        n.x = cursor + w / 2;
+        cursor += w + ROW_GAP;
       }
+
     }
 
     // 6) LINKS (after sim so they match final positions)

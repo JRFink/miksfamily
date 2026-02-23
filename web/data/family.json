@@ -80,7 +80,7 @@
       "photo": "",
       "currentLocation": "Old country",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["adam-kapice", "anna-anderle"],
       "spouseIds": ["jan-brantl"],
       "childIds": ["anna-bilect"]
     },
@@ -108,7 +108,7 @@
       "photo": "",
       "currentLocation": "Old country",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["jan-hana", "barbora-pelnar"],
       "spouseIds": ["martin-konop"],
       "childIds": ["andrew-canap"]
     },
@@ -150,7 +150,7 @@
       "photo": "",
       "currentLocation": "Old country",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["martin-konop", "anna-hana"],
       "spouseIds": ["anna-brantl"],
       "childIds": ["thorothea-canaps-mixan"]
     },
@@ -164,7 +164,7 @@
       "photo": "",
       "currentLocation": "Old country",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["jan-brantl", "anna-kapice"],
       "spouseIds": ["andrew-canap"],
       "childIds": ["thorothea-canaps-mixan"]
     },
@@ -206,7 +206,7 @@
       "photo": "",
       "currentLocation": "*",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["thomas-mixan", "rusonig-grard"],
       "spouseIds": ["thorothea-canaps-mixan"],
       "childIds": ["anton-joseph-mixan"]
     },
@@ -220,7 +220,7 @@
       "photo": "",
       "currentLocation": "*",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["andrew-canap", "anna-brantl"],
       "spouseIds": ["anton-mixan-thorothea"],
       "childIds": ["anton-joseph-mixan"]
     },
@@ -260,7 +260,7 @@
       "photo": "",
       "currentLocation": "Illinois*",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["john-vincent-macdonald", "rose-macdonald"],
       "spouseIds": ["anton-joseph-mixan"]
     },
     {
