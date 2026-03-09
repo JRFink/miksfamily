@@ -136,32 +136,49 @@
     if (!person) return null;
 
     const spouseId = (person.spouseIds || [])[0];
+    const kids = sortChildren(childrenOf.get(pid));
 
-    // If there is a spouse, ALWAYS return a union node so spouse is visible.
     if (spouseId && byId.has(spouseId)) {
+
+      const shared = new Set(sharedChildren(pid, spouseId));
+
+      const unionChildren = kids.filter(k => shared.has(k));
+      const soloChildren = kids.filter(k => !shared.has(k));
+
       const key = pairKey(pid, spouseId);
-      const union = unionsByKey.get(key) || {
+
+      const unionNode = {
         id: `union:${key}`,
         type: "union",
         partnerIds: key.split("__"),
-        childrenIds: sharedChildren(pid, spouseId)
+        children: unionChildren.map(makeHierarchyForPerson).filter(Boolean)
       };
 
+      // If there are no solo children, return the union normally
+      if (soloChildren.length === 0) {
+        return unionNode;
+      }
+
+      // Otherwise create a wrapper node so solo children still appear
       return {
-        id: union.id,
-        type: "union",
-        partnerIds: union.partnerIds,
-        children: (union.childrenIds || []).map(makeHierarchyForPerson).filter(Boolean)
+        id: `wrapper:${pid}`,
+        type: "person",
+        person,
+        children: [
+          unionNode,
+          ...soloChildren.map(makeHierarchyForPerson)
+        ]
       };
     }
+    
 
     // No spouse: render as a person node with children
-    const kids = sortChildren(childrenOf.get(pid));
+    const kidsSort = sortChildren(childrenOf.get(pid));
     return {
       id: pid,
       type: "person",
       person,
-      children: kids.map(makeHierarchyForPerson).filter(Boolean)
+      children: kidsSort.map(makeHierarchyForPerson).filter(Boolean)
     };
   }
 

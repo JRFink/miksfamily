@@ -553,7 +553,8 @@
       "currentLocation": "Thornton, CO",
       "notes": "",
       "parentIds": ["michael-t-fink", "maureen-e-fink"],
-      "spouseIds": []
+      "spouseIds": ["ryan-jugert"],
+      "childIds": ["gianni-pagano", "cole-jugert"]
     },
     {
       "id": "taryn-iadorola",
@@ -564,7 +565,8 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": ["roger-nix", "daria-nix"],
-      "spouseIds": ["dave-iadorola"]
+      "spouseIds": ["dave-iadorola"],
+      "childIds": ["carmine-iadorola-kid", "preston-iadorola"]
     },
     {
       "id": "dave-iadorola",
@@ -575,18 +577,22 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["taryn-iadorola"]
+      "spouseIds": ["taryn-iadorola"],
+      "childIds": ["carmine-iadorola-kid", "preston-iadorola"]
     },
     {
       "id": "paul-e-fink",
       "generation": 0,
       "name": "Paul Fink",
       "birthYear": 1985,
+      "birthMonth": 3, 
+      "birthDay": 16,
       "photo": "jefffink.jpg",
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": ["michael-t-fink", "maureen-e-fink"],
-      "spouseIds": ["kathryn-sawyer-fink"]
+      "spouseIds": ["kathryn-sawyer-fink"],
+      "childIds": ["sawyer-fink", "theodore-fink"]
     },
     {
       "id": "mary-yeast",
@@ -597,7 +603,8 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": ["roger-nix", "daria-nix"],
-      "spouseIds": ["eric-yeast"]
+      "spouseIds": ["eric-yeast"],
+      "childIds": ["maverick-yeast", "nash-yeast"]
     },
     {
       "id": "eric-yeast",
@@ -608,7 +615,8 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["mary-yeast"]
+      "spouseIds": ["mary-yeast"],
+      "childIds": ["maverick-yeast", "nash-yeast"]
     },
     {
       "id": "kathryn-sawyer-fink",
@@ -621,7 +629,8 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["paul-e-fink"]
+      "spouseIds": ["paul-e-fink"],
+      "childIds": ["sawyer-fink", "theodore-fink"]
     },
     {
       "id": "chris-miks",
@@ -685,6 +694,20 @@
       "spouseIds": ["heather-kuckelman"]
     },
     {
+      "id": "ryan-jugert",
+      "generation": 1,
+      "name": "Ryan Jugert",
+      "birthYear": 1986,
+      "birthMonth": 8,
+      "birthDay": 24,
+      "photo": "",
+      "currentLocation": "Thornton, CO",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["kristin-m-fink"],
+      "childIds": ["cole-jugert"]
+    },
+    {
       "id": "john-d-fink",
       "generation": 0,
       "name": "John Fink",
@@ -693,7 +716,8 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": ["michael-t-fink", "maureen-e-fink"],
-      "spouseIds": ["meg-jones-fink"]
+      "spouseIds": ["meg-jones-fink"],
+      "childIds": ["jack-fink-newphew", "emmie-fink", "faye-fink"]
     },
     {
       "id": "angela-miks",
@@ -719,7 +743,8 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["john-d-fink"]
+      "spouseIds": ["john-d-fink"],
+      "childIds": ["jack-fink-newphew", "emmie-fink", "faye-fink"]
     },
     {
       "id": "natasha-miks",
@@ -971,6 +996,149 @@
       "currentLocation": "Denver, CO",
       "notes": "",
       "parentIds": ["craig-miks-uncle", "stacie-miks"],
+      "spouseIds": []
+    },
+    {
+      "id": "gianni-pagano",
+      "generation": 1,
+      "name": "Gianni Pagano",
+      "birthYear": 2011,
+      "birthMonth": 9,
+      "birthDay": 11,
+      "photo": "",
+      "currentLocation": "Thornton, CO",
+      "notes": "",
+      "parentIds": ["kristin-m-fink"],
+      "spouseIds": []
+    },
+    {
+      "id": "jack-fink-newphew",
+      "generation": 1,
+      "name": "Jack Fink",
+      "birthYear": 2012,
+      "birthMonth": 8,
+      "birthDay": 2,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["john-d-fink", "meg-jones-fink"],
+      "spouseIds": []
+    },
+    {
+      "id": "emmie-fink",
+      "generation": 1,
+      "name": "Emmie Fink",
+      "birthYear": 2014,
+      "birthMonth": 9,
+      "birthDay": 29,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["john-d-fink", "meg-jones-fink"],
+      "spouseIds": []
+    },
+    {
+      "id": "faye-fink",
+      "generation": 1,
+      "name": "Faye Fink",
+      "birthYear": 2016,
+      "birthMonth": 11,
+      "birthDay": 14,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["john-d-fink", "meg-jones-fink"],
+      "spouseIds": []
+    },
+    {
+      "id": "sawyer-fink",
+      "generation": 1,
+      "name": "Sawyer Fink",
+      "birthYear": 2020,
+      "birthMonth": 4,
+      "birthDay": 14,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["paul-e-fink", "kathryn-sawyer-fink"],
+      "spouseIds": []
+    },
+    {
+      "id": "theodore-fink",
+      "generation": 1,
+      "name": "Theodore Fink",
+      "birthYear": 2022,
+      "birthMonth": 11,
+      "birthDay": 2,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["paul-e-fink", "kathryn-sawyer-fink"],
+      "spouseIds": []
+    },
+    {
+      "id": "cole-jugert",
+      "generation": 1,
+      "name": "Cole Jugert",
+      "birthYear": 2023,
+      "birthMonth": 2,
+      "birthDay": 15,
+      "photo": "",
+      "currentLocation": "Thornton, CO",
+      "notes": "",
+      "parentIds": ["kristin-m-fink", "ryan-jugert"],
+      "spouseIds": []
+    },
+    {
+      "id": "carmine-iadorola-kid",
+      "generation": 1,
+      "name": "Carmine Iadorola",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["dave-iadorola", "taryn-iadorola"],
+      "spouseIds": []
+    },
+    {
+      "id": "preston-iadorola",
+      "generation": 1,
+      "name": "Preston Iadorola",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["dave-iadorola", "taryn-iadorola"],
+      "spouseIds": []
+    },
+    {
+      "id": "maverick-yeast",
+      "generation": 1,
+      "name": "Maverick Yeast",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["eric-yeast", "mary-yeast"],
+      "spouseIds": []
+    },
+    {
+      "id": "nash-yeast",
+      "generation": 1,
+      "name": "Nash Yeast",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Littleton, CO",
+      "notes": "",
+      "parentIds": ["eric-yeast", "mary-yeast"],
       "spouseIds": []
     }
   ]
