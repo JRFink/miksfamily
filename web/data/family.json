@@ -809,7 +809,8 @@
       "currentLocation": "Denver, CO",
       "notes": "",
       "parentIds": ["leanna-miks-panicucci"],
-      "spouseIds": ["allie-panicucci"]
+      "spouseIds": ["allie-panicucci"],
+      "childIds": ["eli-panicucci", "grace-panicucci", "mercy-panicucci", "cal-panicucci"]
     },
     {
       "id": "andrew-reed",
@@ -858,10 +859,11 @@
       "birthMonth": 2,
       "birthDay": 24,
       "photo": "",
-      "currentLocation": "Broomfield, CO",
+      "currentLocation": "Denver, CO",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["dominic-panicucci"]
+      "spouseIds": ["dominic-panicucci"],
+      "childIds": ["eli-panicucci", "grace-panicucci", "mercy-panicucci", "cal-panicucci"]
     },
     {
       "id": "jeffrey-r-fink",
@@ -1139,6 +1141,58 @@
       "currentLocation": "Littleton, CO",
       "notes": "",
       "parentIds": ["eric-yeast", "mary-yeast"],
+      "spouseIds": []
+    },
+    {
+      "id": "eli-panicucci",
+      "generation": 1,
+      "name": "Eli Panicucci",
+      "birthYear": 2013,
+      "birthMonth": 7,
+      "birthDay": 18,
+      "photo": "",
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["dominic-panicucci", "allie-panicucci"],
+      "spouseIds": []
+    },
+    {
+      "id": "grace-panicucci",
+      "generation": 1,
+      "name": "Grace Panicucci",
+      "birthYear": 2016,
+      "birthMonth": 11,
+      "birthDay": 1,
+      "photo": "",
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["dominic-panicucci", "allie-panicucci"],
+      "spouseIds": []
+    },
+    {
+      "id": "mercy-panicucci",
+      "generation": 1,
+      "name": "Mercy Panicucci",
+      "birthYear": 2025,
+      "birthMonth": 4,
+      "birthDay": 4,
+      "photo": "",
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["dominic-panicucci", "allie-panicucci"],
+      "spouseIds": []
+    },
+    {
+      "id": "cal-panicucci",
+      "generation": 1,
+      "name": "Cal Panicucci",
+      "birthYear": 2025,
+      "birthMonth": 4,
+      "birthDay": 4,
+      "photo": "",
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["dominic-panicucci", "allie-panicucci"],
       "spouseIds": []
     }
   ]
