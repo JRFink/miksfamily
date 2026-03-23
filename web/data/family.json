@@ -235,7 +235,8 @@
       "currentLocation": "Illinois*",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["john-miks-teresa"]
+      "spouseIds": ["john-miks-teresa"],
+      "childIds": ["john-anthony-miks", "george-miks-gpabrother", "bernard-miks-gpabrother", "stephen-miks-gpabrother", "veronica-miks-feiner"]
     },
     {
       "id": "john-miks-teresa",
@@ -248,7 +249,8 @@
       "currentLocation": "Illinois*",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["teresa-svete-miks"]
+      "spouseIds": ["teresa-svete-miks"],
+      "childIds": ["john-anthony-miks", "george-miks-gpabrother", "bernard-miks-gpabrother", "stephen-miks-gpabrother", "veronica-miks-feiner"]
     },
     {
       "id": "angeline-macdonald",
@@ -275,6 +277,54 @@
       "notes": "",
       "parentIds": ["anton-mixan-thorothea", "thorothea-canaps-mixan"],
       "spouseIds": ["angeline-macdonald"]
+    },
+    {
+      "id": "george-miks-gpabrother",
+      "generation": -2,
+      "name": "George Miks",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Minnesota*",
+      "notes": "",
+      "parentIds": ["teresa-svete-miks", "john-miks-teresa"]
+    },
+    {
+      "id": "bernard-miks-gpabrother",
+      "generation": -2,
+      "name": "Bernard Miks",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "",
+      "notes": "",
+      "parentIds": ["teresa-svete-miks", "john-miks-teresa"]
+    },
+    {
+      "id": "stephen-miks-gpabrother",
+      "generation": -2,
+      "name": "Stephen Miks",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "",
+      "notes": "",
+      "parentIds": ["teresa-svete-miks", "john-miks-teresa"]
+    },
+    {
+      "id": "veronica-miks-feiner",
+      "generation": -2,
+      "name": "Veronica Feiner",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Michigan",
+      "notes": "",
+      "parentIds": ["teresa-svete-miks", "john-miks-teresa"]
     },
     {
       "id": "john-anthony-miks",

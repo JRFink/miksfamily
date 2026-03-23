@@ -16,7 +16,6 @@
 
   const byId = new Map(data.people.map(p => [p.id, p]));
 
-  // Build childrenOf from parentIds
   const childrenOf = new Map(data.people.map(p => [p.id, new Set()]));
   data.people.forEach(child =>
     (child.parentIds || []).forEach(pid => childrenOf.get(pid)?.add(child.id))
@@ -24,48 +23,53 @@
 
   // ── Layout constants ──────────────────────────────────────────────────────
   const NODE_H      = 74;
-  const NODE_MIN_W  = 180;
+  const NODE_MIN_W  = 160;
   const ROW_GAP_Y   = 170;
-  const SIBLING_GAP = 24;
-  const PARTNER_GAP = 28;
-  const PAD_X       = 26;
+  const SIBLING_GAP = 32;
+  const PARTNER_GAP = 24;
+  const PAD_X       = 28;
+  const CH_W        = 8.5;
 
-  // ── Text / card sizing ────────────────────────────────────────────────────
-  function measureText(str) {
-    return Math.max(NODE_MIN_W, str.length * 8 + PAD_X * 2);
-  }
-
+  // ── Card sizing ───────────────────────────────────────────────────────────
   function personLabel(p) {
     if (!p) return { name: "—", years: "—", loc: "" };
-    const b = p.birthYear ?? "—";
+    const b = p.birthYear ? String(p.birthYear) : "—";
     const d = p.deathYear ? `–${p.deathYear}` : "";
     return { name: p.name || "—", years: `${b}${d}`, loc: p.currentLocation ?? "" };
   }
 
+  function estimateTextW(str) {
+    return (str?.length ?? 0) * CH_W;
+  }
+
   function cardWidth(personId) {
     const p = byId.get(personId);
-    if (!p) return NODE_MIN_W;
     const lbl = personLabel(p);
-    return Math.max(NODE_MIN_W,
-      measureText(lbl.name),
-      measureText(lbl.years),
-      measureText(lbl.loc)
+    const textW = Math.max(
+      estimateTextW(lbl.name),
+      estimateTextW(lbl.years),
+      estimateTextW(lbl.loc)
     );
+    return Math.max(NODE_MIN_W, textW + PAD_X * 2);
   }
 
   function unionCardWidth(aId, bId) {
     return cardWidth(aId) + PARTNER_GAP + cardWidth(bId);
   }
 
-  // ── Generation from JSON ──────────────────────────────────────────────────
-  function personGen(pid) {
-    return byId.get(pid)?.generation ?? 0;
+  function nodeHalfWidth(node) {
+    if (node.type === "union") {
+      const [aId, bId] = node.partnerIds;
+      return unionCardWidth(aId, bId) / 2;
+    }
+    return cardWidth(node.personId) / 2;
   }
 
+  // ── Generation from JSON ──────────────────────────────────────────────────
+  function personGen(pid) { return byId.get(pid)?.generation ?? 0; }
   function nodeGen(node) {
-    if (node.type === "union") {
+    if (node.type === "union")
       return Math.min(personGen(node.partnerIds[0]), personGen(node.partnerIds[1]));
-    }
     return personGen(node.personId);
   }
 
@@ -73,7 +77,6 @@
   function pairKey(a, b) { return a < b ? `${a}__${b}` : `${b}__${a}`; }
 
   function sharedChildren(aId, bId) {
-    // Children listed under both partners
     const aKids = new Set(byId.get(aId)?.childIds || []);
     const bKids = new Set(byId.get(bId)?.childIds || []);
     if (aKids.size && bKids.size) return [...aKids].filter(id => bKids.has(id));
@@ -82,11 +85,8 @@
       .map(ch => ch.id);
   }
 
-  // Children that belong to ONE partner only (e.g. from a previous relationship)
-  // and are not already in the shared set.
   function soloChildren(partnerId, sharedSet) {
     const kids = new Set(byId.get(partnerId)?.childIds || []);
-    // Also pick up any child whose parentIds list includes partnerId but no known spouse
     childrenOf.get(partnerId)?.forEach(k => kids.add(k));
     return [...kids].filter(k => !sharedSet.has(k));
   }
@@ -109,9 +109,9 @@
     if (!person) return null;
     const spouseId = (person.spouseIds || [])[0];
     if (spouseId && byId.has(spouseId)) {
-      const unionNode = makeUnionNode(pid, spouseId);
-      nodeCache.set(pid, unionNode);
-      return unionNode;
+      const u = makeUnionNode(pid, spouseId);
+      nodeCache.set(pid, u);
+      return u;
     }
     const node = { type: "person", id: pid, personId: pid, children: [] };
     nodeCache.set(pid, node);
@@ -133,17 +133,13 @@
     nodeCache.set(aId, node);
     nodeCache.set(bId, node);
 
-    // Shared children (both parents)
     const sharedIds = sharedChildren(aId, bId);
     const sharedSet = new Set(sharedIds);
-
-    // Solo children from either partner (e.g. Gianni under Kristin+Ryan)
-    const soloA = soloChildren(aId, sharedSet);
-    const soloB = soloChildren(bId, sharedSet);
-
-    // Merge all, deduplicate, sort by birth year
-    const allKidIds = sortedKids([...new Set([...sharedIds, ...soloA, ...soloB])]);
-
+    const allKidIds = sortedKids([...new Set([
+      ...sharedIds,
+      ...soloChildren(aId, sharedSet),
+      ...soloChildren(bId, sharedSet)
+    ])]);
     node.children = allKidIds.map(k => makePersonNode(k)).filter(Boolean);
     return node;
   }
@@ -173,7 +169,7 @@
     addRoot(makePersonNode(p.id));
   });
 
-  // ── Collect all unique nodes ──────────────────────────────────────────────
+  // ── Collect unique nodes ──────────────────────────────────────────────────
   function flatten(node, acc = [], seen = new Set()) {
     if (seen.has(node.id)) return acc;
     seen.add(node.id);
@@ -181,28 +177,23 @@
     (node.children || []).forEach(c => flatten(c, acc, seen));
     return acc;
   }
-  const allNodes = forestRoots.flatMap(r => flatten(r));
+  const allNodes    = forestRoots.flatMap(r => flatten(r));
   const uniqueNodes = [...new Map(allNodes.map(n => [n.id, n])).values()];
 
-  // ── Assign Y from JSON generation field ───────────────────────────────────
+  // ── Y from JSON generation ────────────────────────────────────────────────
   const genMin = d3.min(uniqueNodes, n => nodeGen(n));
   uniqueNodes.forEach(n => {
     n.genVal = nodeGen(n);
-    n.y = (n.genVal - genMin) * ROW_GAP_Y + 80;
+    n.y      = (n.genVal - genMin) * ROW_GAP_Y + 80;
   });
 
   // ── Width computation ─────────────────────────────────────────────────────
   function computeWidths(node, seen = new Set()) {
     if (seen.has(node.id)) return;
     seen.add(node.id);
-
-    node.ownW = node.type === "union"
-      ? unionCardWidth(...node.partnerIds)
-      : cardWidth(node.personId);
-
+    node.ownW = nodeHalfWidth(node) * 2;
     const children = node.children || [];
     children.forEach(c => computeWidths(c, seen));
-
     if (children.length === 0) {
       node.spreadW = node.ownW;
     } else {
@@ -224,32 +215,26 @@
   function placeChildren(node, seen = new Set()) {
     if (seen.has(node.id)) return;
     seen.add(node.id);
-
     const children = node.children || [];
     if (!children.length) return;
-
-    const totalChildW = d3.sum(children, c => c.spreadW)
-                      + SIBLING_GAP * (children.length - 1);
-
-    let childCursor = node.x - totalChildW / 2;
+    const totalW = d3.sum(children, c => c.spreadW)
+                 + SIBLING_GAP * (children.length - 1);
+    let cur = node.x - totalW / 2;
     children.forEach(c => {
-      c.x = childCursor + c.spreadW / 2;
-      childCursor += c.spreadW + SIBLING_GAP;
+      c.x = cur + c.spreadW / 2;
+      cur += c.spreadW + SIBLING_GAP;
       placeChildren(c, seen);
     });
-
     node.x = (children[0].x + children[children.length - 1].x) / 2;
   }
 
-  // ── Overlap resolution + parent re-centering ──────────────────────────────
+  // ── Overlap resolution ────────────────────────────────────────────────────
   function resolveRowOverlaps() {
     const rows = new Map();
     uniqueNodes.forEach(n => {
-      const key = n.genVal;
-      if (!rows.has(key)) rows.set(key, []);
-      rows.get(key).push(n);
+      if (!rows.has(n.genVal)) rows.set(n.genVal, []);
+      rows.get(n.genVal).push(n);
     });
-
     [...rows.entries()]
       .sort((a, b) => b[0] - a[0])
       .forEach(([, rowNodes]) => {
@@ -257,10 +242,10 @@
         for (let i = 1; i < rowNodes.length; i++) {
           const prev = rowNodes[i - 1];
           const curr = rowNodes[i];
-          const need = prev.ownW / 2 + curr.ownW / 2 + SIBLING_GAP;
-          const have = curr.x - prev.x;
-          if (have < need) {
-            const shift = need - have;
+          const minDist = nodeHalfWidth(prev) + SIBLING_GAP + nodeHalfWidth(curr);
+          const actual  = curr.x - prev.x;
+          if (actual < minDist) {
+            const shift = minDist - actual;
             for (let j = i; j < rowNodes.length; j++) rowNodes[j].x += shift;
           }
         }
@@ -272,9 +257,8 @@
     seen.add(node.id);
     const children = node.children || [];
     children.forEach(c => recenterParents(c, seen));
-    if (children.length > 0) {
+    if (children.length > 0)
       node.x = (children[0].x + children[children.length - 1].x) / 2;
-    }
   }
 
   resolveRowOverlaps();
@@ -286,11 +270,17 @@
     return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   }
 
-  function renderPersonCard(g, personId, cx, cy, w) {
-    const p = byId.get(personId);
+  const cardWidthCache = new Map();
+  function getCardWidth(personId) {
+    if (!cardWidthCache.has(personId)) cardWidthCache.set(personId, cardWidth(personId));
+    return cardWidthCache.get(personId);
+  }
+
+  function renderPersonCard(grp, personId, cx, cy, w) {
+    const p   = byId.get(personId);
     const lbl = personLabel(p);
 
-    g.append("rect")
+    const rect = grp.append("rect")
       .attr("class", "person-box")
       .attr("x", cx - w / 2).attr("y", cy - NODE_H / 2)
       .attr("width", w).attr("height", NODE_H);
@@ -299,7 +289,7 @@
       const dotColor = p.deathYear
         ? getCssVar("--deceased")
         : (p.birthYear ? getCssVar("--living") : getCssVar("--unknown"));
-      g.append("circle")
+      grp.append("circle")
         .attr("class", "status-dot")
         .attr("cx", cx - w / 2 + 12)
         .attr("cy", cy - NODE_H / 2 + 12)
@@ -307,33 +297,38 @@
         .attr("fill", dotColor);
     }
 
-    g.append("text").attr("class", "name")
+    const tName  = grp.append("text").attr("class", "name")
       .attr("text-anchor", "middle").attr("x", cx).attr("y", cy - 10)
       .text(lbl.name);
-    g.append("text").attr("class", "years")
+    const tYears = grp.append("text").attr("class", "years")
       .attr("text-anchor", "middle").attr("x", cx).attr("y", cy + 8)
       .text(lbl.years);
-    g.append("text").attr("class", "subtitle")
+    const tLoc   = grp.append("text").attr("class", "subtitle")
       .attr("text-anchor", "middle").attr("x", cx).attr("y", cy + 26)
       .text(lbl.loc);
+
+    grp.node().__rectEl   = rect.node();
+    grp.node().__textEls  = [tName.node(), tYears.node(), tLoc.node()];
+    grp.node().__cx       = cx;
+    grp.node().__personId = personId;
   }
 
   function renderNode(node) {
-    const g = nodesLayer.append("g").attr("class", "node");
+    const grp = nodesLayer.append("g").attr("class", "node");
     if (node.type === "union") {
       const [aId, bId] = node.partnerIds;
-      const wA = cardWidth(aId), wB = cardWidth(bId);
+      const wA = getCardWidth(aId), wB = getCardWidth(bId);
       const cx = node.x, cy = node.y;
       const lCx = cx - PARTNER_GAP / 2 - wA / 2;
       const rCx = cx + PARTNER_GAP / 2 + wB / 2;
-      renderPersonCard(g, aId, lCx, cy, wA);
-      renderPersonCard(g, bId, rCx, cy, wB);
-      g.append("line").attr("class", "marriage-line")
+      renderPersonCard(grp, aId, lCx, cy, wA);
+      renderPersonCard(grp, bId, rCx, cy, wB);
+      grp.append("line").attr("class", "marriage-line")
         .attr("x1", lCx + wA / 2).attr("y1", cy)
         .attr("x2", rCx - wB / 2).attr("y2", cy);
     } else {
-      const w = cardWidth(node.personId);
-      renderPersonCard(g, node.personId, node.x, node.y, w);
+      const w = getCardWidth(node.personId);
+      renderPersonCard(grp, node.personId, node.x, node.y, w);
     }
   }
 
@@ -344,12 +339,9 @@
   function drawLinks(node, seen = new Set()) {
     if (seen.has(node.id)) return;
     seen.add(node.id);
-
     const children = node.children || [];
     if (!children.length) return;
-
     const src = nodeBottomCenter(node);
-
     if (children.length === 1) {
       const tgt = nodeTopCenter(children[0]);
       linksLayer.append("path").attr("class", "link")
@@ -369,7 +361,6 @@
           .attr("x2", tgt.x).attr("y2", tgt.y);
       });
     }
-
     children.forEach(c => drawLinks(c, seen));
   }
 
@@ -377,21 +368,74 @@
   uniqueNodes.forEach(n => renderNode(n));
   forestRoots.forEach(r => drawLinks(r));
 
-  // ── Initial viewport ──────────────────────────────────────────────────────
-  const MY_ID = "jeffrey-r-fink";
-  const myNode = uniqueNodes.find(n =>
-    n.personId === MY_ID ||
-    (n.type === "union" && n.partnerIds?.includes(MY_ID))
-  );
+  // ── Post-render pass: fix card widths + set initial viewport ─────────────
+  // Both operations are deferred to requestAnimationFrame so the browser has
+  // fully painted and svg.node().clientWidth returns real pixel dimensions.
+  requestAnimationFrame(() => {
 
-  const svgW = svg.node().clientWidth  || window.innerWidth;
-  const svgH = svg.node().clientHeight || window.innerHeight;
-  const totalW = (d3.max(uniqueNodes, n => n.x) ?? 0) + 300;
-  const scale = Math.min(0.9, svgW / totalW);
+    // 1) Expand any card whose estimated width was too narrow
+    let anyChanged = false;
+    nodesLayer.selectAll("g.node").each(function () {
+      Array.from(this.children).forEach(child => {
+        if (!child.__rectEl) return;
+        const rectEl  = child.__rectEl;
+        const textEls = child.__textEls || [];
+        const cx      = child.__cx;
 
-  const initX = myNode ? -myNode.x * scale + svgW / 2 : 40;
-  const initY = myNode ? -myNode.y * scale + svgH / 2 : 80;
+        let maxTextW = 0;
+        textEls.forEach(tel => {
+          try { maxTextW = Math.max(maxTextW, tel.getComputedTextLength()); } catch (e) {}
+        });
 
-  svg.call(zoom.transform, d3.zoomIdentity.translate(initX, initY).scale(scale));
+        const needed  = Math.max(NODE_MIN_W, maxTextW + PAD_X * 2);
+        const current = parseFloat(rectEl.getAttribute("width"));
+
+        if (needed > current + 2) {
+          anyChanged = true;
+          cardWidthCache.set(child.__personId, needed);
+          rectEl.setAttribute("x", cx - needed / 2);
+          rectEl.setAttribute("width", needed);
+          const dot = child.querySelector("circle.status-dot");
+          if (dot) dot.setAttribute("cx", cx - needed / 2 + 12);
+        }
+      });
+    });
+
+    if (anyChanged) {
+      uniqueNodes.forEach(n => { n.ownW = nodeHalfWidth(n) * 2; });
+      resolveRowOverlaps();
+      forestRoots.forEach(r => recenterParents(r));
+      resolveRowOverlaps();
+    }
+
+    // 2) Set initial viewport now that the SVG has real dimensions
+    const MY_ID  = "jeffrey-r-fink";
+    const myNode = uniqueNodes.find(n =>
+      n.personId === MY_ID ||
+      (n.type === "union" && n.partnerIds?.includes(MY_ID))
+    );
+
+    // Use the SVG element's actual rendered size
+    const svgEl  = svg.node();
+    const svgW   = svgEl.clientWidth  || svgEl.getBoundingClientRect().width  || window.innerWidth;
+    const svgH   = svgEl.clientHeight || svgEl.getBoundingClientRect().height || window.innerHeight;
+    const isMobile = svgW < 768;
+
+    let scale, initX, initY;
+    if (isMobile) {
+      // Comfortable reading scale on mobile, centered on MY_ID
+      scale = 0.5;
+      initX = myNode ? -myNode.x * scale + svgW / 2 : svgW / 2;
+      initY = myNode ? -myNode.y * scale + svgH / 2 : svgH / 2;
+    } else {
+      // Fit full tree width on desktop, capped at 0.9
+      const treeMaxX = (d3.max(uniqueNodes, n => n.x + nodeHalfWidth(n)) ?? 0) + 60;
+      scale  = Math.min(0.9, svgW / treeMaxX);
+      initX  = myNode ? -myNode.x * scale + svgW / 2 : 40;
+      initY  = myNode ? -myNode.y * scale + svgH / 2 : 80;
+    }
+
+    svg.call(zoom.transform, d3.zoomIdentity.translate(initX, initY).scale(scale));
+  });
 
 })();

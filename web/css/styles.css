@@ -59,11 +59,10 @@ body {
 .controls button {
   cursor: pointer;
   background: #fffdf7;
-  transition: all 0.2s ease;
 }
 .controls button:hover {
   background: var(--accent);
-  color: #fff;
+  color: #f2efef;
 }
 
 /* ───────────── Layout ───────────── */
@@ -86,6 +85,7 @@ body {
 svg#treeSvg {
   width: 100%; height: 100%;
   display: block;
+  touch-action: none;   /* lets d3-zoom handle pinch-zoom without browser interference */
 }
 
 /* Legend */
@@ -136,12 +136,11 @@ svg#treeSvg {
 .meta strong { color: var(--ink); }
 
 /* ───────────── Links / Nodes ───────────── */
-.parent-connector{
-  stroke: #2e7d32; 
-  stroke-width: 2.5px; 
+.parent-connector {
+  stroke: #2e7d32;
+  stroke-width: 2.5px;
   opacity: 0.8;
 }
-
 
 .link {
   fill: none;
@@ -154,7 +153,6 @@ svg#treeSvg {
   stroke-width: 1px;
   opacity: 0.8;
 }
-
 .marriage-line {
   stroke: #2e7d32;
   stroke-width: 3px;
@@ -164,23 +162,27 @@ svg#treeSvg {
 .node {
   cursor: pointer;
 }
-.node rect {
-  fill: #fffdf7;
-  stroke: var(--border);
-  stroke-width: 1.3px;
-  rx: 10; ry: 10;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15));
-  transition: transform 0.15s ease;
+
+/* Single authoritative card style — no hover transforms, no conflicting rules */
+.node rect,
+.node rect.person-box,
+.node rect.partner-box {
+  fill: #c3e6cb;
+  stroke: #2e7d32;
+  stroke-width: 2px;
+  rx: 20;
+  ry: 20;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
 }
-.node:hover rect {
-  transform: scale(1.03);
-}
+
 .node .name {
+  font-size: 13px;
   font-weight: 600;
-  fill: var(--ink);
+  fill: #1b5e20;
   font-family: var(--font-body);
 }
-.node .years, .node .subtitle {
+.node .years,
+.node .subtitle {
   fill: var(--ink-muted);
   font-size: 12px;
   font-style: italic;
@@ -194,15 +196,6 @@ svg#treeSvg {
   stroke: var(--highlight);
   stroke-width: 2px;
   filter: drop-shadow(0 0 10px rgba(226,193,97,0.5));
-}
-
-.node rect.person-box,
-.node rect.partner-box {
-  fill: #c3e6cb;
-  stroke: #2e7d32;
-  stroke-width: 2px;
-  rx: 20;
-  ry: 20;
 }
 
 /* ───────────── Footer ───────────── */
@@ -225,34 +218,9 @@ svg {
   background: #f9fafc;
 }
 
-.node rect {
-  fill: #c3e6cb;
-  stroke: #2e7d32;
-  stroke-width: 2px;
-  rx: 20;           /* rounded corners → leaf-like */
-  ry: 20;
-}
-
-.node text.name {
-  font-size: 18px;
-  font-weight: bold;
-  fill: #1b5e20;
-}
-
-.node text.subtitle {
-  font-size: 14px;
-  fill: #388e3c;
-}
-
 .status-dot {
-  stroke: #fff;
+  stroke: #f6f3f3;
   stroke-width: 1.5px;
-}
-
-.link {
-  fill: none;
-  stroke: #90a4ae;
-  stroke-width: 2px;
 }
 
 .highlight rect {
