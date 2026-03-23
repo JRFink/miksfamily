@@ -1030,7 +1030,7 @@
     },
     {
       "id": "anela-walker",
-      "generation": 1,
+      "generation": 0,
       "name": "Anela Walker",
       "birthYear": 0,
       "birthMonth": 0,
@@ -1082,7 +1082,7 @@
     },
     {
       "id": "faye-walker",
-      "generation": 1,
+      "generation": 0,
       "name": "Faye Walker",
       "birthYear": 0,
       "birthMonth": 0,
@@ -1095,7 +1095,7 @@
     },
     {
       "id": "graham-walker",
-      "generation": 1,
+      "generation": 0,
       "name": "Graham Walker",
       "birthYear": 0,
       "birthMonth": 0,
