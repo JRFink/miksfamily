@@ -372,7 +372,8 @@
       "currentLocation": "Wheat Ride, CO*",
       "notes": "",
       "parentIds": ["teresa-svete-miks", "john-miks-teresa"],
-      "spouseIds": ["rosemary-miks"]
+      "spouseIds": ["rosemary-miks"],
+      "childIds": ["john-miks-uncle", "maureen-e-fink", "daria-nix", "leanna-miks-panicucci", "brian-miks-uncle", "jeff-miks-uncle", "pat-miks-uncle", "mike-miks-uncle", "craig-miks-uncle"]
     },
     {
       "id": "rosemary-miks",
@@ -385,7 +386,8 @@
       "currentLocation": "Lakewood, CO",
       "notes": "",
       "parentIds": ["angeline-macdonald", "anton-joseph-mixan"],
-      "spouseIds": ["john-anthony-miks"]
+      "spouseIds": ["john-anthony-miks"],
+      "childIds": ["john-miks-uncle", "maureen-e-fink", "daria-nix", "leanna-miks-panicucci", "brian-miks-uncle", "jeff-miks-uncle", "pat-miks-uncle", "mike-miks-uncle", "craig-miks-uncle"]
     },
     {
       "id": "anthony-mixan",
