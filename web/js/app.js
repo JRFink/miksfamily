@@ -113,10 +113,13 @@
       nodeCache.set(pid, u);
       return u;
     }
-    const node = { type: "person", id: pid, personId: pid, children: [] };
+    const node = { type: "person", id: pid, personId: pid, children: [], secondaryChildren: [] };
     nodeCache.set(pid, node);
     const kids = sortedKids([...(childrenOf.get(pid) || [])]);
-    node.children = kids.map(k => makePersonNode(k)).filter(Boolean);
+    kids.map(k => makePersonNode(k)).filter(Boolean).forEach(c => {
+      if (!c._parent) { c._parent = node.id; node.children.push(c); }
+      else { node.secondaryChildren.push(c); }
+    });
     return node;
   }
 
@@ -128,7 +131,7 @@
     const pa = byId.get(aId), pb = byId.get(bId);
     if ((pb?.birthYear ?? 9999) < (pa?.birthYear ?? 9999)) [aId, bId] = [bId, aId];
 
-    const node = { type: "union", id: cacheKey, partnerIds: [aId, bId], children: [] };
+    const node = { type: "union", id: cacheKey, partnerIds: [aId, bId], children: [], secondaryChildren: [] };
     nodeCache.set(cacheKey, node);
     nodeCache.set(aId, node);
     nodeCache.set(bId, node);
@@ -140,7 +143,10 @@
       ...soloChildren(aId, sharedSet),
       ...soloChildren(bId, sharedSet)
     ])]);
-    node.children = allKidIds.map(k => makePersonNode(k)).filter(Boolean);
+    allKidIds.map(k => makePersonNode(k)).filter(Boolean).forEach(c => {
+      if (!c._parent) { c._parent = node.id; node.children.push(c); }
+      else { node.secondaryChildren.push(c); }
+    });
     return node;
   }
 
@@ -339,6 +345,8 @@
   function drawLinks(node, seen = new Set()) {
     if (seen.has(node.id)) return;
     seen.add(node.id);
+
+
     const children = node.children || [];
     if (!children.length) return;
     const src = nodeBottomCenter(node);
@@ -409,10 +417,11 @@
     }
 
     // 2) Set initial viewport now that the SVG has real dimensions
-    const MY_ID  = "jeffrey-r-fink";
-    const myNode = uniqueNodes.find(n =>
-      n.personId === MY_ID ||
-      (n.type === "union" && n.partnerIds?.includes(MY_ID))
+    // Focus on the Rosemary & John Anthony Miks branch at a readable scale
+    const FOCUS_IDS = ["rosemary-miks", "john-anthony-miks"];
+    const focusNode = uniqueNodes.find(n =>
+      (n.type === "union" && n.partnerIds?.some(id => FOCUS_IDS.includes(id))) ||
+      FOCUS_IDS.includes(n.personId)
     );
 
     // Use the SVG element's actual rendered size
@@ -421,19 +430,10 @@
     const svgH   = svgEl.clientHeight || svgEl.getBoundingClientRect().height || window.innerHeight;
     const isMobile = svgW < 768;
 
-    let scale, initX, initY;
-    if (isMobile) {
-      // Comfortable reading scale on mobile, centered on MY_ID
-      scale = 0.5;
-      initX = myNode ? -myNode.x * scale + svgW / 2 : svgW / 2;
-      initY = myNode ? -myNode.y * scale + svgH / 2 : svgH / 2;
-    } else {
-      // Fit full tree width on desktop, capped at 0.9
-      const treeMaxX = (d3.max(uniqueNodes, n => n.x + nodeHalfWidth(n)) ?? 0) + 60;
-      scale  = Math.min(0.9, svgW / treeMaxX);
-      initX  = myNode ? -myNode.x * scale + svgW / 2 : 40;
-      initY  = myNode ? -myNode.y * scale + svgH / 2 : 80;
-    }
+    const scale = isMobile ? 0.55 : 0.85;
+    const targetNode = focusNode || uniqueNodes[0];
+    const initX = targetNode ? -targetNode.x * scale + svgW / 2 : svgW / 2;
+    const initY = targetNode ? -targetNode.y * scale + svgH / 2 : svgH / 2;
 
     svg.call(zoom.transform, d3.zoomIdentity.translate(initX, initY).scale(scale));
   });

@@ -148,6 +148,10 @@ svg#treeSvg {
   stroke-width: 1.2px;
   opacity: 0.9;
 }
+.link-secondary {
+  stroke-dasharray: 6, 4;
+  opacity: 0.65;
+}
 .marriage {
   stroke-dasharray: 4 3;
   stroke-width: 1px;
