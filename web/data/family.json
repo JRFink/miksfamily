@@ -169,6 +169,34 @@
       "childIds": ["thorothea-canaps-mixan"]
     },
     {
+      "id": "francis-mavec-svete",
+      "generation": -4,
+      "name": "Francis Mavec Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["martin-svete"],
+      "childIds": ["francis-svete-daughter", "julia-svete", "teresa-svete-miks", "silvia-svete", "p-something", "mary-svete", "edward-svete", "martin-svete-son", "emily-svete"]
+    },
+    {
+      "id": "martin-svete",
+      "generation": -4,
+      "name": "Martin Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["francis-mavec-svete"],
+      "childIds": ["francis-svete-daughter", "julia-svete", "teresa-svete-miks", "silvia-svete", "p-something", "mary-svete", "edward-svete", "martin-svete-son", "emily-svete"]
+    },
+    {
       "id": "john-vincent-macdonald",
       "generation": -4,
       "name": "John Vincent MacDonald",
@@ -179,7 +207,7 @@
       "currentLocation": "*",
       "notes": "",
       "parentIds": [],
-      "spouseIds": ["rose-macdonal"],
+      "spouseIds": ["rose-macdonald"],
       "childIds": ["angeline-macdonald"]
     },
     {
@@ -195,6 +223,34 @@
       "parentIds": [],
       "spouseIds": ["john-vincent-macdonald"],
       "childIds": ["angeline-macdonald"]
+    },
+    {
+      "id": "johanna-miks-bathtub",
+      "generation": -4,
+      "name": "Johanna Miks",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["frank-francz-miks"],
+      "childIds": ["anton-miks-from-johanna", "frank-miks-from-johanna", "leo-miks-from-johanna", "john-miks-teresa", "joseph-miks-from-johanna", "stanley-miks", "albin-miks"]
+    },
+    {
+      "id": "frank-francz-miks",
+      "generation": -4,
+      "name": "Frank (Francz) Miks",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": [],
+      "spouseIds": ["johanna-miks-bathtub"],
+      "childIds": ["anton-miks-from-johanna", "frank-miks-from-johanna", "leo-miks-from-johanna", "john-miks-teresa", "joseph-miks-from-johanna", "stanley-miks", "albin-miks"]
     },
     {
       "id": "anton-mixan-thorothea",
@@ -225,6 +281,34 @@
       "childIds": ["anton-joseph-mixan"]
     },
     {
+      "id": "francis-svete-daughter",
+      "generation": -3,
+      "name": "Francis Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
+    },
+    {
+      "id": "julia-svete",
+      "generation": -3,
+      "name": "Julia Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
+    },
+    {
       "id": "teresa-svete-miks",
       "generation": -3,
       "name": "Teresa Svete Miks",
@@ -234,9 +318,93 @@
       "photo": "",
       "currentLocation": "Illinois*",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
       "spouseIds": ["john-miks-teresa"],
       "childIds": ["john-anthony-miks", "george-miks-gpabrother", "bernard-miks-gpabrother", "stephen-miks-gpabrother", "veronica-miks-feiner"]
+    },
+    {
+      "id": "silvia-svete",
+      "generation": -3,
+      "name": "Silvia Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
+    },
+    {
+      "id": "p-something",
+      "generation": -3,
+      "name": "P. Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
+    },
+    {
+      "id": "mary-svete",
+      "generation": -3,
+      "name": "Mary Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
+    },
+    {
+      "id": "edward-svete",
+      "generation": -3,
+      "name": "Edward Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
+    },
+    {
+      "id": "martin-svete-son",
+      "generation": -3,
+      "name": "Martin Svete Jr.",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
+    },
+    {
+      "id": "emily-svete",
+      "generation": -3,
+      "name": "Emily Svete",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "*",
+      "notes": "",
+      "parentIds": ["francis-mavec-svete", "martin-svete"],
+      "spouseIds": [],
+      "childIds": []
     },
     {
       "id": "john-miks-teresa",
@@ -248,7 +416,7 @@
       "photo": "",
       "currentLocation": "Illinois*",
       "notes": "",
-      "parentIds": [],
+      "parentIds": ["johanna-miks-bathtub", "frank-francz-miks"],
       "spouseIds": ["teresa-svete-miks"],
       "childIds": ["john-anthony-miks", "george-miks-gpabrother", "bernard-miks-gpabrother", "stephen-miks-gpabrother", "veronica-miks-feiner"]
     },
@@ -264,7 +432,7 @@
       "notes": "",
       "parentIds": ["john-vincent-macdonald", "rose-macdonald"],
       "spouseIds": ["anton-joseph-mixan"],
-      "childIds": ["anthony-mixan", "rosemary-miks", "edgar-mixan"]
+      "childIds": ["anthony-mixan-iii", "rosemary-miks", "edgar-mixan"]
     },
     {
       "id": "anton-joseph-mixan",
@@ -278,7 +446,7 @@
       "notes": "",
       "parentIds": ["anton-mixan-thorothea", "thorothea-canaps-mixan"],
       "spouseIds": ["angeline-macdonald"],
-      "childIds": ["anthony-mixan", "rosemary-miks", "edgar-mixan"]
+      "childIds": ["anthony-mixan-iii", "rosemary-miks", "edgar-mixan"]
     },
     {
       "id": "george-miks-gpabrother",
@@ -304,7 +472,7 @@
       "currentLocation": "",
       "notes": "",
       "parentIds": ["teresa-svete-miks", "john-miks-teresa"],
-      "childIds": ["jennifer-miks-brody", "kevin-miks", "keith-miks"]
+      "childIds": ["jennifer-miks-lucas", "kevin-miks", "keith-miks"]
     },
     {
       "id": "stephen-miks-gpabrother",
@@ -390,9 +558,9 @@
       "childIds": ["john-miks-uncle", "maureen-e-fink", "daria-nix", "leanna-miks-panicucci", "brian-miks-uncle", "jeff-miks-uncle", "pat-miks-uncle", "mike-miks-uncle", "craig-miks-uncle"]
     },
     {
-      "id": "anthony-mixan",
+      "id": "anthony-mixan-iii",
       "generation": -2,
-      "name": "Anthony Mixan",
+      "name": "Anthony Joseph Mixan III",
       "birthYear": 0,
       "birthMonth": 0,
       "birthDay": 0,
@@ -446,18 +614,18 @@
       "childIds": []
     },
     {
-      "id": "jennifer-miks-brody",
+      "id": "jennifer-miks-lucas",
       "generation": -1,
-      "name": "Jennifer",
+      "name": "Jennifer Lucas",
       "birthYear": 0,
       "birthMonth": 0,
       "birthDay": 0,
       "photo": "",
-      "currentLocation": "",
+      "currentLocation": "Brighton, CO",
       "notes": "",
       "parentIds": ["bernard-miks-gpabrother"],
       "spouseIds": [],
-      "childIds": []
+      "childIds": ["brody-lucas"]
     },
     {
       "id": "kevin-miks",
@@ -611,7 +779,7 @@
       "notes": "",
       "parentIds": ["edgar-mixan"],
       "spouseIds": [],
-      "childIds": []
+      "childIds": ["christopher-mixan-from-ron"]
     },
     {
       "id": "mary-katherine-knapp",
@@ -623,9 +791,9 @@
       "photo": "",
       "currentLocation": "",
       "notes": "",
-      "parentIds": ["anthony-mixan"],
+      "parentIds": ["anthony-mixan-iii"],
       "spouseIds": [],
-      "childIds": []
+      "childIds": ["rose-filitchkin", "mary-frances-knapp"]
     },
     {
       "id": "max-mixan",
@@ -637,7 +805,7 @@
       "photo": "",
       "currentLocation": "",
       "notes": "",
-      "parentIds": ["anthony-mixan"],
+      "parentIds": ["anthony-mixan-iii"],
       "spouseIds": [],
       "childIds": []
     },
@@ -651,7 +819,7 @@
       "photo": "",
       "currentLocation": "",
       "notes": "",
-      "parentIds": ["anthony-mixan"],
+      "parentIds": ["anthony-mixan-iii"],
       "spouseIds": [],
       "childIds": []
     },
@@ -665,7 +833,7 @@
       "photo": "",
       "currentLocation": "",
       "notes": "",
-      "parentIds": ["anthony-mixan"],
+      "parentIds": ["anthony-mixan-iii"],
       "spouseIds": [],
       "childIds": []
     },
@@ -679,7 +847,7 @@
       "photo": "",
       "currentLocation": "",
       "notes": "",
-      "parentIds": ["anthony-mixan"],
+      "parentIds": ["anthony-mixan-iii"],
       "spouseIds": [],
       "childIds": []
     },
@@ -693,7 +861,7 @@
       "photo": "",
       "currentLocation": "",
       "notes": "",
-      "parentIds": ["anthony-mixan"],
+      "parentIds": ["anthony-mixan-iii"],
       "spouseIds": [],
       "childIds": []
     },
@@ -707,7 +875,7 @@
       "photo": "",
       "currentLocation": "",
       "notes": "",
-      "parentIds": ["anthony-mixan"],
+      "parentIds": ["anthony-mixan-iii"],
       "spouseIds": [],
       "childIds": []
     },
@@ -926,6 +1094,71 @@
       "parentIds": [],
       "spouseIds": ["pat-miks-uncle"],
       "childIds": ["gabby-miks","maya-miks","hudson-miks"]
+    },
+    {
+      "id": "brody-lucas",
+      "generation": 0,
+      "name": "Brody Lucas",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Brighton, CO",
+      "notes": "",
+      "parentIds": ["jennifer-miks-lucas"],
+      "spouseIds": []
+    },
+    {
+      "id": "christopher-mixan-from-ron",
+      "generation": 0,
+      "name": "Christopher Mixan",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "CO",
+      "notes": "",
+      "parentIds": ["ronald-mixan"],
+      "spouseIds": []
+    },
+    {
+      "id": "paul-filitchkin",
+      "generation": 0,
+      "name": "Paul Filitchkin",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "CA",
+      "notes": "",
+      "parentIds": ["mary-katherine-knapp"],
+      "spouseIds": ["rose-filitchkin"]
+    },
+    {
+      "id": "rose-filitchkin",
+      "generation": 0,
+      "name": "Rose Filitchkin",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "CA",
+      "notes": "",
+      "parentIds": ["mary-katherine-knapp"],
+      "spouseIds": ["paul-filitchkin"]
+    },
+    {
+      "id": "mary-frances-knapp",
+      "generation": 0,
+      "name": "Mary Frances Knapp",
+      "birthYear": 0,
+      "birthMonth": 0,
+      "birthDay": 0,
+      "photo": "",
+      "currentLocation": "Brooklyn, NY",
+      "notes": "",
+      "parentIds": ["mary-katherine-knapp"],
+      "spouseIds": []
     },
     {
       "id": "misty-hall",

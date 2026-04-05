@@ -346,6 +346,13 @@
     if (seen.has(node.id)) return;
     seen.add(node.id);
 
+    // Draw solid lines to secondary (cross-family) children — no recursion needed
+    (node.secondaryChildren || []).forEach(c => {
+      const src = nodeBottomCenter(node);
+      const tgt = nodeTopCenter(c);
+      linksLayer.append("path").attr("class", "link")
+        .attr("d", `M${src.x},${src.y} C${src.x},${(src.y + tgt.y) / 2} ${tgt.x},${(src.y + tgt.y) / 2} ${tgt.x},${tgt.y}`);
+    });
 
     const children = node.children || [];
     if (!children.length) return;
