@@ -32,9 +32,14 @@ sudo rm -rf "$REMOTE_DIR/web"
 sudo mv /tmp/web "$REMOTE_DIR/"
 sudo chown -R ec2-user:ec2-user "$REMOTE_DIR"
 
+echo "🔐 Granting port binding permission..."
+sudo setcap 'cap_net_bind_service=+ep' "$REMOTE_DIR/$APP_NAME"
+sudo chmod 755 /etc/letsencrypt/live /etc/letsencrypt/archive
+sudo chmod 644 /etc/letsencrypt/live/miksfamily.com/fullchain.pem /etc/letsencrypt/live/miksfamily.com/privkey.pem
+
 echo "🚀 Starting new server..."
 cd "$REMOTE_DIR"
-sudo nohup "$REMOTE_DIR/$APP_NAME" > "$REMOTE_DIR/app.log" 2>&1 &
+nohup "$REMOTE_DIR/$APP_NAME" > "$REMOTE_DIR/app.log" 2>&1 &
 sleep 3
 
 echo "✅ Last 10 lines of app.log:"

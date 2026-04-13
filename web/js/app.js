@@ -231,7 +231,8 @@
       cur += c.spreadW + SIBLING_GAP;
       placeChildren(c, seen);
     });
-    node.x = (children[0].x + children[children.length - 1].x) / 2;
+    const anchors = children.map(c => childAnchorX(node, c));
+    node.x = (anchors[0] + anchors[anchors.length - 1]) / 2;
   }
 
   // ── Overlap resolution ────────────────────────────────────────────────────
@@ -258,13 +259,39 @@
       });
   }
 
+  // Returns the x position of the specific partner card within a union that is
+  // the biological child of parentNode, or the node's center x if not a union.
+  function partnerCardX(unionNode, partnerId) {
+    const [aId, bId] = unionNode.partnerIds;
+    const wA = cardWidth(aId), wB = cardWidth(bId);
+    if (partnerId === aId) return unionNode.x - PARTNER_GAP / 2 - wA / 2;
+    if (partnerId === bId) return unionNode.x + PARTNER_GAP / 2 + wB / 2;
+    return unionNode.x;
+  }
+
+  function childAnchorX(parentNode, childNode) {
+    if (childNode.type !== "union") return childNode.x;
+    const parentPersonIds = new Set(
+      parentNode.type === "union" ? parentNode.partnerIds : [parentNode.personId]
+    );
+    for (const partnerId of childNode.partnerIds) {
+      const person = byId.get(partnerId);
+      if ((person?.parentIds || []).some(pid => parentPersonIds.has(pid))) {
+        return partnerCardX(childNode, partnerId);
+      }
+    }
+    return childNode.x; // fallback: center of union
+  }
+
   function recenterParents(node, seen = new Set()) {
     if (seen.has(node.id)) return;
     seen.add(node.id);
     const children = node.children || [];
     children.forEach(c => recenterParents(c, seen));
-    if (children.length > 0)
-      node.x = (children[0].x + children[children.length - 1].x) / 2;
+    if (children.length > 0) {
+      const anchors = children.map(c => childAnchorX(node, c));
+      node.x = (anchors[0] + anchors[anchors.length - 1]) / 2;
+    }
   }
 
   resolveRowOverlaps();

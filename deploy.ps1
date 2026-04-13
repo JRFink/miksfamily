@@ -23,9 +23,13 @@ $cmd = @"
 echo '📦 Stopping old process...'
 sudo pkill -9 -f miksfamily || true
 sleep 2
+echo '🔐 Granting port binding permission...'
+sudo setcap 'cap_net_bind_service=+ep' /home/ec2-user/miksfamilysite/miksfamily
+sudo chmod 755 /etc/letsencrypt/live /etc/letsencrypt/archive
+sudo chmod 644 /etc/letsencrypt/live/miksfamily.com/fullchain.pem /etc/letsencrypt/live/miksfamily.com/privkey.pem
 echo '🚀 Starting new miksfamily server...'
 cd /home/ec2-user/miksfamilysite
-sudo nohup /home/ec2-user/miksfamilysite/miksfamily > /home/ec2-user/miksfamilysite/app.log 2>&1 &
+nohup /home/ec2-user/miksfamilysite/miksfamily > /home/ec2-user/miksfamilysite/app.log 2>&1 &
 sleep 4
 echo '✅ Server restarted. Showing last 10 lines of app.log...'
 sudo tail -n 10 /home/ec2-user/miksfamilysite/app.log || echo 'No log yet.'
