@@ -4,14 +4,35 @@
   <meta charset="UTF-8" />
   <title>Miks Family Tree</title>
   <link rel="stylesheet" href="./css/styles.css" />
-
-  <!-- D3 -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 </head>
 <body>
 
-  <svg id="treeSvg"></svg>
+  <!-- Tree view -->
+  <div id="tree-view">
+    <svg id="treeSvg"></svg>
+  </div>
+
+  <!-- Map view (hidden initially) -->
+  <div id="map-view">
+    <div id="map-sidebar">
+      <h2 id="map-sidebar-title">Click a continent</h2>
+      <button id="map-back-btn">← World</button>
+      <ul id="map-people-list"></ul>
+    </div>
+    <div id="map-canvas">
+      <svg id="mapSvg"></svg>
+    </div>
+  </div>
+
+  <!-- Toggle button: fixed bottom right -->
+  <div class="view-toggle">
+    <button id="btn-tree" class="toggle-btn active">🌳 Tree</button>
+    <button id="btn-map"  class="toggle-btn">🌍 Map</button>
+  </div>
 
   <script src="./js/app.js"></script>
+  <script src="./js/map.js"></script>
 </body>
 </html>
