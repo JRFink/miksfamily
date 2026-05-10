@@ -243,6 +243,7 @@ svg#treeSvg {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
 /* ── Toggle button ─────────────────────────────────────── */
@@ -278,7 +279,6 @@ svg#treeSvg {
 .toggle-btn:hover:not(.active) {
   background: var(--border);
 }
-
 /* ── Map layout ────────────────────────────────────────── */
 #map-sidebar {
   width: 280px;
@@ -292,6 +292,22 @@ svg#treeSvg {
   display: flex;
   flex-direction: column;
   gap: 0;
+}
+#map-search {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fffaf0;
+  color: var(--ink);
+  padding: 0.4rem 0.6rem;
+  margin-bottom: 10px;
+  outline: none;
+}
+#map-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(185,139,76,0.18);
 }
 #map-sidebar h2 {
   font-family: "Cinzel", "Georgia", serif;
@@ -359,11 +375,38 @@ svg#treeSvg {
   stroke-width: 0.4px;
 }
 .continent {
-  stroke: #fff;
+  stroke: #f9f7f7;
   stroke-width: 0.5px;
   cursor: pointer;
   transition: fill 0.15s;
 }
+/* ── Lines overlay ─────────────────────────────────────────────────────── */
+#lines-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+.location-line {
+  stroke: #e53935;
+  stroke-width: 1.5px;
+  opacity: 0.75;
+}
+.location-dot {
+  fill: #e53935;
+  stroke: #fff;
+  stroke-width: 1.5px;
+  opacity: 0.9;
+}
+
+.us-state-border {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.35);
+  stroke-width: 0.5px;
+  pointer-events: none;
+}
+
 .continent-label {
   font-family: var(--font-body);
   font-size: 11px;
@@ -371,4 +414,64 @@ svg#treeSvg {
   font-style: italic;
   pointer-events: none;
   text-shadow: 0 0 3px rgba(255,255,255,0.6);
+}
+
+/* ── Mobile / touch overrides (must be last so they win the cascade) ── */
+@media (pointer: coarse), (max-width: 900px) {
+  .view-toggle {
+    bottom: 24px;
+    right: 24px;
+    padding: 10px;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.30);
+  }
+  .toggle-btn {
+    font-size: 1.1rem;
+    padding: 0.55rem 1.3rem;
+    border-radius: 10px;
+  }
+
+  /* Map: column layout — map on top, sidebar below */
+  #map-view {
+    flex-direction: column;
+  }
+  #map-canvas {
+    order: 1;
+    width: 100%;
+    height: 58vh;
+    flex: none;
+  }
+  #map-sidebar {
+    order: 2;
+    width: 100%;
+    min-width: unset;
+    height: 42vh;
+    flex: none;
+    border-right: none;
+    border-top: 2px solid var(--border);
+    padding: 12px 14px;
+    overflow-y: auto;
+  }
+  #map-search {
+    font-size: 1.0rem;
+    padding: 0.5rem 0.7rem;
+    margin-bottom: 10px;
+  }
+  #map-sidebar h2 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+  #map-back-btn {
+    font-size: 1.0rem;
+    padding: 0.45rem 1.1rem;
+    margin-bottom: 12px;
+  }
+  .map-person-item {
+    padding: 10px 12px;
+    gap: 3px;
+  }
+  .map-person-name  { font-size: 1.0rem; }
+  .map-person-loc   { font-size: 0.88rem; }
+  .map-person-years { font-size: 0.82rem; }
+  .map-no-people    { font-size: 1.0rem; }
 }
