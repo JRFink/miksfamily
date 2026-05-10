@@ -241,9 +241,30 @@
       )
     })).filter(f => f.geometry);
 
-    const container = document.getElementById('map-canvas');
-    const svgW = container.clientWidth  || window.innerWidth - 280;
-    const svgH = container.clientHeight || window.innerHeight;
+    // Apply mobile layout via JS — more reliable than CSS media queries alone
+    const isMobile = window.innerWidth < 900;
+    const mapViewEl  = document.getElementById('map-view');
+    const container  = document.getElementById('map-canvas');
+    const sidebarEl2 = document.getElementById('map-sidebar');
+    if (isMobile) {
+      mapViewEl.style.flexDirection  = 'column';
+      container.style.order          = '1';
+      container.style.width          = '100%';
+      container.style.height         = '58vh';
+      container.style.flex           = 'none';
+      sidebarEl2.style.order         = '2';
+      sidebarEl2.style.width         = '100%';
+      sidebarEl2.style.minWidth      = 'unset';
+      sidebarEl2.style.height        = '42vh';
+      sidebarEl2.style.flex          = 'none';
+      sidebarEl2.style.borderRight   = 'none';
+      sidebarEl2.style.borderTop     = '2px solid #d8c7a5';
+    }
+
+    // Force a layout flush so clientWidth/clientHeight are accurate
+    void container.getBoundingClientRect();
+    const svgW = container.clientWidth  || (isMobile ? window.innerWidth : window.innerWidth - 280);
+    const svgH = container.clientHeight || (isMobile ? window.innerHeight * 0.58 : window.innerHeight);
 
     mapSvg = d3.select('#mapSvg');
     geoG   = mapSvg.append('g');
