@@ -431,6 +431,8 @@ svg#treeSvg {
     border-radius: 10px;
   }
 
+  .continent-label { font-size: 6px; }
+
   /* Map: side-by-side layout — sidebar 33% left, map 67% right */
   #map-view {
     flex-direction: row;

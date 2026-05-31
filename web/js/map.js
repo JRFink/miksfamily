@@ -278,7 +278,7 @@
     geoG.append('path').datum({ type: 'Sphere' }).attr('class', 'map-sphere').attr('d', geoPath);
 
     mapZoom = d3.zoom()
-      .scaleExtent([1, 12])
+      .scaleExtent([1, isMobile ? 60 : 12])
       .on('zoom', e => { geoG.attr('transform', e.transform); updateLines(); });
     mapSvg.call(mapZoom).on('dblclick.zoom', null);
 
