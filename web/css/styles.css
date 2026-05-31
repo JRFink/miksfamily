@@ -431,47 +431,45 @@ svg#treeSvg {
     border-radius: 10px;
   }
 
-  /* Map: column layout — map on top, sidebar below */
+  /* Map: side-by-side layout — sidebar 33% left, map 67% right */
   #map-view {
-    flex-direction: column;
-  }
-  #map-canvas {
-    order: 1;
-    width: 100%;
-    height: 58vh;
-    flex: none;
+    flex-direction: row;
   }
   #map-sidebar {
-    order: 2;
-    width: 100%;
+    width: 33%;
     min-width: unset;
-    height: 42vh;
-    flex: none;
-    border-right: none;
-    border-top: 2px solid var(--border);
-    padding: 12px 14px;
+    flex: 0 0 33%;
+    height: 100%;
+    border-right: 2px solid var(--border);
+    border-top: none;
+    padding: 8px 8px;
     overflow-y: auto;
   }
+  #map-canvas {
+    flex: 1;
+    width: 67%;
+    height: 100%;
+  }
   #map-search {
-    font-size: 1.0rem;
-    padding: 0.5rem 0.7rem;
-    margin-bottom: 10px;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.5rem;
+    margin-bottom: 6px;
   }
   #map-sidebar h2 {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
+    font-size: 0.8rem;
+    margin-bottom: 6px;
   }
   #map-back-btn {
-    font-size: 1.0rem;
-    padding: 0.45rem 1.1rem;
-    margin-bottom: 12px;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.7rem;
+    margin-bottom: 8px;
   }
   .map-person-item {
-    padding: 10px 12px;
-    gap: 3px;
+    padding: 6px 8px;
+    gap: 2px;
   }
-  .map-person-name  { font-size: 1.0rem; }
-  .map-person-loc   { font-size: 0.88rem; }
-  .map-person-years { font-size: 0.82rem; }
-  .map-no-people    { font-size: 1.0rem; }
+  .map-person-name  { font-size: 0.78rem; }
+  .map-person-loc   { font-size: 0.7rem; }
+  .map-person-years { font-size: 0.68rem; }
+  .map-no-people    { font-size: 0.78rem; }
 }
