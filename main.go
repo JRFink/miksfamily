@@ -4,38 +4,25 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3003"
+	}
+
 	// Serve static files with cache-control headers
-    fs := http.FileServer(http.Dir("./web"))
+	fs := http.FileServer(http.Dir("./web"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
-        fs.ServeHTTP(w, r)
+		fs.ServeHTTP(w, r)
 	})
 
-	// Redirect all HTTP traffic to HTTPS
-	go func() {
-		fmt.Println("Redirecting HTTP to HTTPS on :80 ...")
-		err := http.ListenAndServe(":80", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			target := "https://" + r.Host + r.URL.Path
-			if len(r.URL.RawQuery) > 0 {
-				target += "?" + r.URL.RawQuery
-			}
-			http.Redirect(w, r, target, http.StatusMovedPermanently)
-		}))
-		if err != nil {
-			log.Printf("⚠️ HTTP redirect server error: %v", err)
-		}
-	}()
-
-	// Serve HTTPS using Let's Encrypt certs
-	fmt.Println("Serving HTTPS on :443 ...")
-	err := http.ListenAndServeTLS(":443",
-		"/etc/letsencrypt/live/miksfamily.com/fullchain.pem",
-		"/etc/letsencrypt/live/miksfamily.com/privkey.pem",
-		nil)
-	if err != nil {
-		log.Fatalf("❌ HTTPS server failed: %v", err)
+	addr := "127.0.0.1:" + port
+	fmt.Printf("Serving miksfamily on %s ...\n", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		log.Fatalf("❌ HTTP server failed: %v", err)
 	}
 }
