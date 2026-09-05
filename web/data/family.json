@@ -1634,6 +1634,20 @@
       "childIds": ["wyatt-kuckelman", "wren-kuckelman"]
     },
     {
+      "id": "cory-miks",
+      "generation": 0,
+      "name": "Cory Miks",
+      "birthYear": 1989,
+      "birthMonth": 7,
+      "birthDay": 3,
+      "photo": "",
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["brian-miks-uncle", "kathy-goulding-miks"],
+      "spouseIds": [""],
+      "childIds": [""]
+    },
+    {
       "id": "ryan-jugert",
       "generation": 1,
       "name": "Ryan Jugert",
