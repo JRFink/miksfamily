@@ -1274,6 +1274,7 @@
       "birthDay": 22,
       "photo": "kathygouldingmiks.jpg",
       "currentLocation": "Denver, CO",
+      "placesLived": [],
       "notes": "",
       "parentIds": [],
       "spouseIds": ["brian-miks-uncle"],
@@ -1831,6 +1832,8 @@
       "birthYear": 1994,
       "photo": "jefffink.jpg",
       "currentLocation": "Queens, NY",
+      "placesLived": ["Denver, CO", "Irving, TX", "NYC, New York"],
+      "blurb": "Jeff studied Philosophy at the University of Dallas and Physics at the University of Colorado in Boulder. Now he works in the ed-tech and real estate industry in New York.",
       "notes": "",
       "parentIds": ["michael-t-fink", "maureen-e-fink"],
       "spouseIds": []

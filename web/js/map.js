@@ -200,6 +200,50 @@
   const btnTree  = document.getElementById('btn-tree');
   const btnMap   = document.getElementById('btn-map');
 
+  // ── Person detail card ───────────────────────────────────────────────────
+  const personCard      = document.getElementById('map-person-card');
+  const personCardClose = document.getElementById('map-person-card-close');
+  const mpcName          = document.getElementById('mpc-name');
+  const mpcPhoto         = document.getElementById('mpc-photo');
+  const mpcLocation      = document.getElementById('mpc-location');
+  const mpcBlurb         = document.getElementById('mpc-blurb');
+
+  function showPersonCard(person) {
+    mpcName.textContent = person.name || '—';
+    mpcPhoto.src = './photos/' + (person.photo || 'blank-photo.jpg');
+    mpcPhoto.alt = person.name || '';
+    mpcLocation.textContent = (person.currentLocation || '').replace(/\*/g, '').trim();
+    if (person.blurb) {
+      mpcBlurb.textContent = person.blurb;
+      mpcBlurb.hidden = false;
+    } else {
+      mpcBlurb.textContent = '';
+      mpcBlurb.hidden = true;
+    }
+    personCard.hidden = false;
+
+    document.querySelectorAll('.map-person-item.selected').forEach(el => el.classList.remove('selected'));
+    const li = document.querySelector(`.map-person-item[data-id="${person.id}"]`);
+    if (li) li.classList.add('selected');
+  }
+
+  function hidePersonCard() {
+    personCard.hidden = true;
+    document.querySelectorAll('.map-person-item.selected').forEach(el => el.classList.remove('selected'));
+  }
+
+  personCardClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hidePersonCard();
+  });
+
+  document.getElementById('map-people-list').addEventListener('click', (e) => {
+    const li = e.target.closest('.map-person-item');
+    if (!li) return;
+    const person = allPeople.find(p => p.id === li.dataset.id);
+    if (person) showPersonCard(person);
+  });
+
   btnTree.addEventListener('click', () => {
     treeView.style.display = '';
     mapView.style.display  = 'none';
@@ -453,6 +497,7 @@
 
   function clearSidebar() {
     clearLines();
+    hidePersonCard();
     document.getElementById('map-sidebar-title').textContent = 'Click a continent';
     document.getElementById('map-people-list').innerHTML = '';
   }
@@ -465,6 +510,7 @@
 
   function renderPeopleList(people, title) {
     clearLines();
+    hidePersonCard();
     document.getElementById('map-sidebar-title').textContent = title;
     const list = document.getElementById('map-people-list');
     list.innerHTML = '';
@@ -475,6 +521,7 @@
     people.forEach(p => {
       const li = document.createElement('li');
       li.className = 'map-person-item';
+      li.dataset.id = p.id;
       const loc = (p.currentLocation || '').replace(/\*/g, '').trim();
       li.dataset.location = loc;
       const years = p.birthYear ? p.birthYear + (p.deathYear ? `–${p.deathYear}` : '') : '';
