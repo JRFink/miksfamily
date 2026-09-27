@@ -379,11 +379,13 @@ svg#treeSvg {
 /* ── Person detail card (Map view) ─────────────────────── */
 .map-person-card {
   position: absolute;
-  top: 20px;
+  top: 50%;
   right: 20px;
-  bottom: 20px;
+  transform: translateY(-50%);
   width: 320px;
   max-width: calc(100% - 40px);
+  min-height: 50%;
+  max-height: calc(100% - 40px);
   overflow-y: auto;
   background: var(--panel);
   border: 2px solid var(--border);
@@ -394,6 +396,7 @@ svg#treeSvg {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: 10px;
 }
@@ -554,11 +557,13 @@ svg#treeSvg {
 
   /* Person card: canvas is only 67% wide here, so the card must live within it */
   .map-person-card {
-    top: 10px;
+    top: 50%;
     right: 10px;
-    bottom: 10px;
+    transform: translateY(-50%);
     width: calc(67% - 20px);
     max-width: calc(67% - 20px);
+    min-height: 50%;
+    max-height: calc(100% - 20px);
     padding: 14px 12px;
     gap: 6px;
   }
