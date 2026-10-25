@@ -487,6 +487,17 @@ svg#treeSvg {
   stroke-width: 1.5px;
   opacity: 0.9;
 }
+.location-line-selected {
+  stroke: #ffd60a;
+  stroke-width: 2.5px;
+  opacity: 0.95;
+}
+.location-dot-selected {
+  fill: #ffd60a;
+  stroke: #fff;
+  stroke-width: 2px;
+  opacity: 1;
+}
 
 .us-state-border {
   fill: none;

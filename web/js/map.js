@@ -233,11 +233,13 @@
     document.querySelectorAll('.map-person-item.selected').forEach(el => el.classList.remove('selected'));
     const li = document.querySelector(`.map-person-item[data-id="${person.id}"]`);
     if (li) li.classList.add('selected');
+    updateLines();
   }
 
   function hidePersonCard() {
     personCard.hidden = true;
     document.querySelectorAll('.map-person-item.selected').forEach(el => el.classList.remove('selected'));
+    updateLines();
   }
 
   personCardClose.addEventListener('click', (e) => {
@@ -457,6 +459,8 @@
     const canvasLeft   = sidebarEl.offsetWidth; // offset of map canvas within map-view
     const transform    = d3.zoomTransform(mapSvg.node());
 
+    let selectedLineDraw = null;
+
     document.querySelectorAll('.map-person-item[data-location]').forEach(item => {
       const loc = item.dataset.location;
       if (!loc) return;
@@ -476,18 +480,26 @@
       const srcY = itemRect.top + itemRect.height / 2 - mapViewRect.top;
       const tgtX = canvasLeft + mapX;
       const tgtY = mapY;
+      const isSelected = item.classList.contains('selected');
 
-      // Line
-      linesOverlay.append('line')
-        .attr('x1', srcX).attr('y1', srcY)
-        .attr('x2', tgtX).attr('y2', tgtY)
-        .attr('class', 'location-line');
+      const draw = () => {
+        // Line
+        linesOverlay.append('line')
+          .attr('x1', srcX).attr('y1', srcY)
+          .attr('x2', tgtX).attr('y2', tgtY)
+          .attr('class', isSelected ? 'location-line-selected' : 'location-line');
 
-      // Dot at map endpoint
-      linesOverlay.append('circle')
-        .attr('cx', tgtX).attr('cy', tgtY).attr('r', 4)
-        .attr('class', 'location-dot');
+        // Dot at map endpoint
+        linesOverlay.append('circle')
+          .attr('cx', tgtX).attr('cy', tgtY).attr('r', isSelected ? 5 : 4)
+          .attr('class', isSelected ? 'location-dot-selected' : 'location-dot');
+      };
+
+      // Draw the selected person's line last so it renders on top of the others.
+      if (isSelected) { selectedLineDraw = draw; } else { draw(); }
     });
+
+    if (selectedLineDraw) selectedLineDraw();
   }
 
   function clearLines() {
