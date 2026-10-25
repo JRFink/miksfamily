@@ -436,6 +436,14 @@ svg#treeSvg {
   color: var(--ink-muted);
   margin: 0;
 }
+.map-person-card-places-lived {
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+  line-height: 1.4;
+  margin: 2px 0 0 0;
+  text-align: left;
+}
+.map-person-card-places-lived[hidden] { display: none; }
 .map-person-card-blurb {
   font-size: 0.92rem;
   color: var(--ink);
@@ -570,6 +578,7 @@ svg#treeSvg {
   .map-person-card-photo { width: 88px; height: 88px; }
   .map-person-card-name  { font-size: 1rem; }
   .map-person-card-location { font-size: 0.8rem; }
+  .map-person-card-places-lived { font-size: 0.74rem; }
   .map-person-card-blurb    { font-size: 0.8rem; }
   .map-person-card-close    { font-size: 1.2rem; top: 2px; right: 4px; }
 }

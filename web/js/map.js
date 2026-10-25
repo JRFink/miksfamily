@@ -206,6 +206,7 @@
   const mpcName          = document.getElementById('mpc-name');
   const mpcPhoto         = document.getElementById('mpc-photo');
   const mpcLocation      = document.getElementById('mpc-location');
+  const mpcPlacesLived   = document.getElementById('mpc-places-lived');
   const mpcBlurb         = document.getElementById('mpc-blurb');
 
   function showPersonCard(person) {
@@ -213,6 +214,13 @@
     mpcPhoto.src = './photos/' + (person.photo || 'blank-photo.jpg');
     mpcPhoto.alt = person.name || '';
     mpcLocation.textContent = (person.currentLocation || '').replace(/\*/g, '').trim();
+    if (person.placesLived && person.placesLived.length) {
+      mpcPlacesLived.textContent = 'Places lived: ' + person.placesLived.join(', ');
+      mpcPlacesLived.hidden = false;
+    } else {
+      mpcPlacesLived.textContent = '';
+      mpcPlacesLived.hidden = true;
+    }
     if (person.blurb) {
       mpcBlurb.textContent = person.blurb;
       mpcBlurb.hidden = false;
