@@ -369,12 +369,14 @@
         .on('mouseover', function (_, d) {
           if (selectedContinent === d.properties.name) return;
           d3.select(this).attr('fill', CONTINENT_STYLE[d.properties.name].hover);
-          if (!selectedContinent) previewSidebar(d.properties.name, continentPeople);
+          const searching = document.getElementById('map-search').value.trim();
+          if (!selectedContinent && !searching) previewSidebar(d.properties.name, continentPeople);
         })
         .on('mouseout', function (_, d) {
           if (selectedContinent === d.properties.name) return;
           d3.select(this).attr('fill', CONTINENT_STYLE[d.properties.name].fill);
-          if (!selectedContinent) clearSidebar();
+          const searching = document.getElementById('map-search').value.trim();
+          if (!selectedContinent && !searching) clearSidebar();
         })
         .on('click', async function (event, d) {
           event.stopPropagation();
@@ -505,7 +507,6 @@
 
   function clearSidebar() {
     clearLines();
-    hidePersonCard();
     document.getElementById('map-sidebar-title').textContent = 'Click a continent';
     document.getElementById('map-people-list').innerHTML = '';
   }
@@ -518,7 +519,6 @@
 
   function renderPeopleList(people, title) {
     clearLines();
-    hidePersonCard();
     document.getElementById('map-sidebar-title').textContent = title;
     const list = document.getElementById('map-people-list');
     list.innerHTML = '';
