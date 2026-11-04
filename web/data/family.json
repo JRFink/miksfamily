@@ -1804,7 +1804,7 @@
       "notes": "",
       "parentIds": ["leanna-miks-panicucci"],
       "spouseIds": ["allie-panicucci"],
-      "childIds": ["eli-panicucci", "grace-panicucci", "mercy-panicucci", "cal-panicucci"]
+      "childIds": ["eli-panicucci", "grace-panicucci", "mercy-panicucci", "cal-panicucci", "olive-marie-panicucci"]
     },
     {
       "id": "andrew-reed",
@@ -1866,7 +1866,7 @@
       "notes": "",
       "parentIds": [],
       "spouseIds": ["dominic-panicucci"],
-      "childIds": ["eli-panicucci", "grace-panicucci", "mercy-panicucci", "cal-panicucci"]
+      "childIds": ["eli-panicucci", "grace-panicucci", "mercy-panicucci", "cal-panicucci", "olive-marie-panicucci"]
     },
     {
       "id": "jeffrey-r-fink",
@@ -2400,6 +2400,20 @@
       "currentLocation": "Lakewood, CO",
       "notes": "",
       "parentIds": ["ellen-reed", "andrew-reed"],
+      "spouseIds": []
+    },
+    {
+      "id": "olive-marie-panicucci",
+      "generation": 1,
+      "name": "Olive Panicucci",
+      "birthYear": 2026,
+      "birthMonth": 11,
+      "birthDay": 3,
+      "photo": "",
+      "placesLived": ["Denver, CO"],
+      "currentLocation": "Denver, CO",
+      "notes": "",
+      "parentIds": ["dominic-panicucci", "allie-panicucci"],
       "spouseIds": []
     }
   ]
