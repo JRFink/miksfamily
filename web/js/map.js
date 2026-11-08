@@ -134,6 +134,7 @@
     'detroit, mi':[42.3314,-83.0458],'detroit mi':[42.3314,-83.0458],
     'minneapolis, mn':[44.9778,-93.2650],'minneapolis mn':[44.9778,-93.2650],
     'richmond, va':[37.5407,-77.4360],'richmond va':[37.5407,-77.4360],
+    'old country':[49.8175,15.4730],
   };
 
   function geocodeLocation(loc) {
