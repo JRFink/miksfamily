@@ -297,6 +297,7 @@
   resolveRowOverlaps();
   forestRoots.forEach(r => recenterParents(r));
   resolveRowOverlaps();
+  forestRoots.forEach(r => recenterParents(r));
 
   // ── DOM rendering ─────────────────────────────────────────────────────────
   function getCssVar(n) {
