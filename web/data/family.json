@@ -1182,6 +1182,7 @@
       "birthDay": 30,
       "photo": "johnmiksuncle.jpg",
       "currentLocation": "Hayden, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["rosemary-miks", "john-anthony-miks"],
       "spouseIds": [],
@@ -1246,8 +1247,8 @@
       "birthYear": 1959,
       "birthMonth": 9,
       "birthDay": 2,
-      "photo": "panicucci.jpg",
-      "placesLived": ["Wheat Ridge, CO"],
+      "photo": "",
+      "placesLived": ["Wheat Ridge, CO", "Broomfield, CO"],
       "currentLocation": "Broomfield, CO",
       "notes": "",
       "parentIds": ["rosemary-miks", "john-anthony-miks"],
@@ -1482,6 +1483,7 @@
       "birthDay": 11,
       "photo": "",
       "currentLocation": "FL",
+      "placesLived": ["Florida"],
       "notes": "",
       "parentIds": ["john-miks-uncle"],
       "spouseIds": []
@@ -1495,6 +1497,7 @@
       "birthDay": 11,
       "photo": "",
       "currentLocation": "NY",
+      "placesLived": ["New York"],
       "notes": "",
       "parentIds": ["john-miks-uncle"],
       "spouseIds": []
@@ -1745,6 +1748,7 @@
       "birthDay": 5,
       "photo": "",
       "currentLocation": "CA",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["john-miks-uncle"],
       "spouseIds": []
@@ -1774,6 +1778,7 @@
       "birthDay": 10,
       "photo": "",
       "currentLocation": "Broomfield, CO",
+      "placesLived": ["Wheat Ridge, CO", "Broomfield, CO"],
       "notes": "",
       "parentIds": ["leanna-miks-panicucci"],
       "spouseIds": []
@@ -1786,7 +1791,8 @@
       "birthMonth": 9,
       "birthDay": 26,
       "photo": "",
-      "currentLocation": "CO",
+      "currentLocation": "Denver, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["john-miks-uncle"],
       "spouseIds": []
@@ -1800,6 +1806,7 @@
       "birthDay": 21,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Wheat Ridge, CO", "Broomfield, CO"],
       "blurb": "Married to Allie Panicucci.",
       "notes": "",
       "parentIds": ["leanna-miks-panicucci"],
@@ -1890,6 +1897,7 @@
       "birthDay": 22,
       "photo": "",
       "currentLocation": "Arvada, CO",
+      "placesLived": ["Broomfield, CO", "Fort Collins, CO"],
       "blurb": "Married to Lauren Panicucci.",
       "notes": "",
       "parentIds": ["leanna-miks-panicucci"],
@@ -1905,6 +1913,7 @@
       "birthDay": 11,
       "photo": "",
       "currentLocation": "Arvada, CO",
+      "placesLived": ["Fort Collins, CO"],
       "blurb": "Married to Gian Panicucci.",
       "notes": "",
       "parentIds": [],
@@ -1920,6 +1929,7 @@
       "birthDay": 29,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Broomfield, CO", "Denver, CO"],
       "notes": "",
       "parentIds": ["leanna-miks-panicucci"],
       "spouseIds": ["sabrina-hernandez"], 
@@ -1934,6 +1944,7 @@
       "birthDay": 1,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": [],
       "spouseIds": ["dante-panicucci"], 
@@ -2196,6 +2207,7 @@
       "birthDay": 18,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["dominic-panicucci", "allie-panicucci"],
       "spouseIds": []
@@ -2209,6 +2221,7 @@
       "birthDay": 1,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["dominic-panicucci", "allie-panicucci"],
       "spouseIds": []
@@ -2249,6 +2262,7 @@
       "birthDay": 1,
       "photo": "",
       "currentLocation": "Arvada, CO",
+      "placesLived": ["Arvada, CO"],
       "notes": "",
       "parentIds": ["gian-panicucci", "lauren-panicucci"],
       "spouseIds": []
@@ -2331,6 +2345,7 @@
       "birthDay": 28,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["dante-panicucci", "sabrina-hernandez"],
       "spouseIds": []
@@ -2344,6 +2359,7 @@
       "birthDay": 6,
       "photo": "",
       "currentLocation": "Arvada, CO",
+      "placesLived": ["Arvada, CO"],
       "notes": "",
       "parentIds": ["gian-panicucci", "lauren-panicucci"],
       "spouseIds": []
@@ -2357,6 +2373,7 @@
       "birthDay": 4,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["dominic-panicucci", "allie-panicucci"],
       "spouseIds": []
@@ -2370,6 +2387,7 @@
       "birthDay": 4,
       "photo": "",
       "currentLocation": "Denver, CO",
+      "placesLived": ["Denver, CO"],
       "notes": "",
       "parentIds": ["dominic-panicucci", "allie-panicucci"],
       "spouseIds": []
